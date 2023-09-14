@@ -4,3 +4,25 @@
 /* Your own custom component styles */
 
 @import 'tailwindcss/utilities';
+
+:root {
+    --color1: #141514;
+    --color2: #151515;
+    --color3: #13232a;
+    --color4: #171717;
+}
+
+.animated-bg {
+    animation: gradientAnimation 10s linear infinite alternate;
+    background-size: 400% 400%;
+    background-image: linear-gradient(-45deg, var(--color4), var(--color3), var(--color2), var(--color1));
+}
+
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 100% 50%;
+    }
+}
