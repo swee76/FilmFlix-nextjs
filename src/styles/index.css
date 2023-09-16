@@ -8,8 +8,10 @@
 :root {
     --color1: #141514;
     --color2: #151515;
-    --color3: #13232a;
+    --color3: #2c0505;
     --color4: #171717;
+    --color5: #6b0a0a;
+    --gray-400: #9ca3af
 }
 
 .animated-bg {
@@ -25,4 +27,25 @@
     100% {
         background-position: 100% 50%;
     }
+}
+
+.outlined-primary-button {
+    border: var(--color5) 2px solid;
+}
+
+.outlined-primary-button:hover {
+    background-color: var(--color5);
+    color: var(--gray-400)
+}
+
+.solid-primary-button {
+    background-color: var(--color5);
+    color: var(--gray-400)
+}
+
+.gradient-text {
+    background-image: linear-gradient(90deg, #7e500f, #9a3412, #450a0a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }

@@ -1,11 +1,12 @@
 import Header from "../components/header";
+import CtaSection from "../components/cta-section";
 
 export default function Home() {
     return (
-        <div className="h-screen animated-bg">
+        <div className="animated-bg">
             <Header/>
-            <main>
-                <h2 className="text-gray-400">Type something</h2>
+            <main className="px-6 sm:px-8 md:px-12">
+                <CtaSection/>
             </main>
         </div>
     )
