@@ -49,3 +49,7 @@
     background-clip: text;
     color: transparent;
 }
+
+.login-bg-image{
+    background-image: url("/images/Login-background.jpg");
+}

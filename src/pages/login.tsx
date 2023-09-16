@@ -1,12 +1,162 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Header from "../components/header";
 import Footer from "../components/footer";
 
 const Login = () => {
+    const [showSignUpForm, setShowSignUpForm] = useState(false)
+
+    const displaySignUpForm = () => {
+        setShowSignUpForm(true)
+    }
+
+    const displaySignInForm = () => {
+        setShowSignUpForm(false)
+    }
+
     return (
-        <div>
+        <div className="login-bg-image">
             <Header/>
-            login
+            {!showSignUpForm ?
+                <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-20 lg:px-8">
+                    <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+                        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-300">
+                            Sign in to Your Account
+                        </h2>
+                    </div>
+
+                    <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-lg">
+                        <form action="#" method="POST">
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-400">
+                                    Email address
+                                </label>
+                                <div className="mt-2">
+                                    <input
+                                        id="email"
+                                        name="email"
+                                        type="email"
+                                        autoComplete="email"
+                                        required
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-2">
+                                <div className="flex items-center justify-between">
+                                    <label htmlFor="password"
+                                           className="block text-sm font-medium leading-6 text-gray-400">
+                                        Password
+                                    </label>
+                                </div>
+                                <div className="mt-2">
+                                    <input
+                                        id="password"
+                                        name="password"
+                                        type="password"
+                                        autoComplete="current-password"
+                                        required
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-6 flex gap-6 items-center justify-between">
+                                <button
+                                    type="submit"
+                                    className="flex w-full justify-center rounded-3xl bg-red-900 border border-gray-400 px-4 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
+                                >
+                                    Sign in
+                                </button>
+                                <button
+                                    type="submit"
+                                    onClick={displaySignUpForm}
+                                    className="flex w-full justify-center rounded-3xl bg-red-900 border border-gray-400 px-4 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
+                                >
+                                    Sign up instead
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div> :
+                <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-20 lg:px-8">
+                    <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+                        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-300">
+                            Create Your Account on FilmFlix
+                        </h2>
+                    </div>
+
+                    <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-lg">
+                        <form action="#" method="POST">
+                            <div>
+                                <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-400">
+                                    Username
+                                </label>
+                                <div className="mt-2">
+                                    <input
+                                        id="username"
+                                        name="username"
+                                        type="text"
+                                        autoComplete="name"
+                                        required
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-400">
+                                    Email address
+                                </label>
+                                <div className="mt-2">
+                                    <input
+                                        id="email"
+                                        name="email"
+                                        type="email"
+                                        autoComplete="email"
+                                        required
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-2">
+                                <div className="flex items-center justify-between">
+                                    <label htmlFor="password"
+                                           className="block text-sm font-medium leading-6 text-gray-400">
+                                        Password
+                                    </label>
+                                </div>
+                                <div className="mt-2">
+                                    <input
+                                        id="password"
+                                        name="password"
+                                        type="password"
+                                        autoComplete="current-password"
+                                        required
+                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-6 flex gap-6 items-center justify-between">
+                                <button
+                                    type="submit"
+                                    className="flex w-full justify-center rounded-3xl bg-red-900 border border-gray-400 px-4 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
+                                >
+                                    Sign up
+                                </button>
+                                <button
+                                    type="submit"
+                                    onClick={displaySignInForm}
+                                    className="flex w-full justify-center rounded-3xl bg-red-900 border border-gray-400 px-4 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
+                                >
+                                    Sign in instead
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>}
             <Footer/>
         </div>
     );
