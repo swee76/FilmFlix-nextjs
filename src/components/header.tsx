@@ -16,7 +16,7 @@ const Header = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
     return (
-        <header className="fixed w-screen bg-neutral-900">
+        <header className="fixed w-screen bg-neutral-900 z-10">
             <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 lg:px-0" aria-label="Global">
                 <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-4">
                     <span className="sr-only">Your Company</span>

@@ -10,7 +10,7 @@ const navigation = {
         {name: 'Description Adder', href: '/description-adder'},
     ],
     support: [
-        {name: 'Pricing', href: '#'},
+        {name: 'Pricing', href: '/pricing'},
         {name: 'User Page', href: '/user-page'},
         {name: 'Guides', href: '#'},
         {name: 'Login', href: '/login'},
