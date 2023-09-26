@@ -21,7 +21,7 @@ const navigation = {
     legal: [
         {name: 'FAQ', href: '#'},
         {name: 'Terms', href: '/terms-and-conditions'},
-        {name: 'Privacy', href: '#'},
+        {name: 'Privacy', href: '/privacy-policy'},
     ],
     social: [
         {
@@ -176,7 +176,7 @@ const Footer = () => {
                     </div>
                 </div>
                 <div className="mt-16 border-t border-white/10 pt-8 sm:mt-20 lg:mt-24">
-                    <p className="text-xs leading-5 text-gray-400">&copy; 2023 Your Company, Inc. All rights
+                    <p className="text-xs leading-5 text-gray-400">&copy; 2023 FilmFlix, Inc. All rights
                         reserved.</p>
                 </div>
             </div>
