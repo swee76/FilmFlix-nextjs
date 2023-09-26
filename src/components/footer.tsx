@@ -12,7 +12,6 @@ const navigation = {
     support: [
         {name: 'Pricing', href: '/pricing'},
         {name: 'User Page', href: '/user-page'},
-        {name: 'Guides', href: '#'},
         {name: 'Login', href: '/login'},
     ],
     company: [
@@ -21,7 +20,6 @@ const navigation = {
     ],
     legal: [
         {name: 'Claim', href: '#'},
-        {name: 'Privacy', href: '#'},
         {name: 'Terms', href: '#'},
     ],
     social: [
