@@ -16,7 +16,6 @@ const navigation = {
     ],
     company: [
         {name: 'About', href: '/about'},
-        {name: 'Blog', href: '#'},
     ],
     legal: [
         {name: 'FAQ', href: '/faq-section'},
