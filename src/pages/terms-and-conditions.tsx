@@ -60,7 +60,7 @@ const TermsAndConditions = () => {
                         <h2 className="mt-16 text-2xl font-bold tracking-tight text-orange-900">Contact Information</h2>
                         <p className="mt-6">
                             If you have any questions or concerns about these Terms and Conditions, please contact us
-                            at <span className="text-yellow-800"> contact@filmflix.com</span>
+                            at <span className="text-yellow-800"> contactfilmflix@google.com</span>
                         </p>
                         <figure className="mt-10 border-l border-red-900 pl-9">
                             <blockquote className="font-semibold text-gray-300">
