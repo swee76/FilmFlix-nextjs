@@ -3,6 +3,7 @@ import Header from "../components/header";
 import Footer from "../components/footer";
 import {Disclosure} from '@headlessui/react'
 import {MinusSmallIcon, PlusSmallIcon} from '@heroicons/react/24/outline'
+import Link from "next/link";
 
 const faqs = [
     {
@@ -52,9 +53,9 @@ const FaqSection = () => {
                             <p className="mt-6 text-base leading-7 text-gray-400">
                                 Have a different question and can’t find the answer you’re looking for? Reach out to our
                                 support team by{' '}
-                                <a href="#" className="font-semibold text-red-900 hover:text-red-800">
+                                <Link href="mailto:contactfilmflix@google.com" className="font-semibold text-red-900 hover:text-red-800">
                                     sending us an email
-                                </a>{' '}
+                                </Link>{' '}
                                 and we’ll get back to you as soon as we can.
                             </p>
                         </div>

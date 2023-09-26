@@ -40,7 +40,7 @@ const PrivacyPolicy = () => {
                                     We take security seriously and employ industry-standard measures to protect your
                                     data from unauthorized access. If you have any concerns or questions about your
                                     privacy, please feel free to contact us at <span
-                                    className="text-yellow-800">contact@filmflix.com</span>.
+                                    className="text-yellow-800">contactfilmflix@google.com</span>.
                                 </p>
                             </div>
                         </div>
