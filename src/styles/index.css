@@ -13,6 +13,7 @@
     --color3: #2c0505;
     --color4: #171717;
     --color5: #6b0a0a;
+    --color6: #7e0d0d;
     --gray-400: #9ca3af
 }
 
@@ -55,7 +56,13 @@ body::-webkit-scrollbar-thumb {
 
 .solid-primary-button {
     background-color: var(--color5);
-    color: var(--gray-400)
+    color: var(--gray-400);
+    border: var(--color5) 2px solid;
+}
+
+.solid-primary-button:hover {
+    border: var(--color5) 2px solid;
+    background-color: var(--color6);
 }
 
 .gradient-text {
