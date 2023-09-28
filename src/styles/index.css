@@ -5,6 +5,8 @@
 
 @import 'tailwindcss/utilities';
 
+@import "sliderStyles.css";
+
 :root {
     --color1: #141514;
     --color2: #151515;
@@ -29,6 +31,19 @@
     }
 }
 
+body::-webkit-scrollbar {
+    width: 4px !important; /* Adjust the width as needed */
+}
+
+body::-webkit-scrollbar-track {
+    background-color: #7a6666; /* Track color */
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: #650f07; /* Thumb color */
+    border-radius: 5px; /* Rounded corners */
+}
+
 .outlined-primary-button {
     border: var(--color5) 2px solid;
 }
@@ -50,6 +65,106 @@
     color: transparent;
 }
 
-.login-bg-image{
+.login-bg-image {
     background-image: url("/images/Login-background.jpg");
 }
+
+.scrollbar-container {
+    display: grid;
+    grid-auto-columns: calc(100% - 56rem);
+    grid-auto-flow: column;
+    grid-gap: 10px;
+    overflow-x: auto;
+}
+
+.scrollbar-item {
+    width: 300px;
+    height: auto;
+}
+
+.scrollbar-container::-webkit-scrollbar {
+    width: 10px;
+    height: 2px; /* Adjust the width as needed */
+}
+
+.scrollbar-container::-webkit-scrollbar-track {
+    background-color: #232121; /* Track color */
+}
+
+/* Define the styles for the scrollbar thumb (the draggable part) */
+.scrollbar-container::-webkit-scrollbar-thumb {
+    background-color: #888; /* Thumb color */
+    border-radius: 5px; /* Rounded corners */
+}
+
+@media (max-width: 520px) {
+    .scrollbar-container {
+        display: grid;
+        grid-auto-columns: calc(100% - 1rem);
+        grid-auto-flow: column;
+        grid-gap: 10px;
+        overflow-x: auto;
+    }
+}
+
+@media (min-width: 522px) and (max-width: 768px) {
+    .scrollbar-container {
+        display: grid;
+        grid-auto-columns: calc(100% - 10rem);
+        grid-auto-flow: column;
+        grid-gap: 10px;
+        overflow-x: auto;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 830px) {
+    .scrollbar-container {
+        display: grid;
+        grid-auto-columns: calc(100% - 20rem);
+        grid-auto-flow: column;
+        grid-gap: 10px;
+        overflow-x: auto;
+    }
+}
+
+@media (min-width: 832px) and (max-width: 940px) {
+    .scrollbar-container {
+        display: grid;
+        grid-auto-columns: calc(100% - 26rem);
+        grid-auto-flow: column;
+        grid-gap: 10px;
+        overflow-x: auto;
+    }
+}
+
+@media (min-width: 942px) and (max-width: 1030px) {
+    .scrollbar-container {
+        display: grid;
+        grid-auto-columns: calc(100% - 30rem);
+        grid-auto-flow: column;
+        grid-gap: 10px;
+        overflow-x: auto;
+    }
+}
+
+@media (min-width: 1032px) and (max-width: 1200px) {
+    .scrollbar-container {
+        display: grid;
+        grid-auto-columns: calc(100% - 42rem);
+        grid-auto-flow: column;
+        grid-gap: 10px;
+        overflow-x: auto;
+    }
+}
+
+@media (min-width: 1202px) and (max-width: 1474px) {
+    .scrollbar-container {
+        display: grid;
+        grid-auto-columns: calc(100% - 56rem);
+        grid-auto-flow: column;
+        grid-gap: 10px;
+        overflow-x: auto;
+    }
+}
+
+
