@@ -2,7 +2,7 @@ import React from 'react';
 import Header from "../components/header";
 import Footer from "../components/footer";
 
-const DescriptionAdder = () => {
+const PopularMovieUpdater = () => {
     return (
         <div>
             <Header/>
@@ -12,4 +12,4 @@ const DescriptionAdder = () => {
     );
 };
 
-export default DescriptionAdder;
+export default PopularMovieUpdater;
