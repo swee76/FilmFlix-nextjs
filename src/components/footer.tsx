@@ -7,7 +7,7 @@ const navigation = {
         {name: 'Browse', href: '/browse'},
         {name: 'Movie Uploader', href: '/movie-uploader'},
         {name: 'Movie Banner Uploader', href: '/movie-banner-uploader'},
-        {name: 'Description Adder', href: '/description-adder'},
+        {name: 'Popular Movie Updater', href: '/popular-movie-updater'},
     ],
     support: [
         {name: 'Pricing', href: '/pricing'},
