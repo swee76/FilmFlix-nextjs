@@ -6,7 +6,6 @@ const navigation = {
     movie: [
         {name: 'Browse', href: '/browse'},
         {name: 'Movie Uploader', href: '/movie-uploader'},
-        {name: 'Movie Banner Uploader', href: '/movie-banner-uploader'},
         {name: 'Popular Movie Updater', href: '/popular-movie-updater'},
     ],
     support: [
