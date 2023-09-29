@@ -174,4 +174,10 @@ body::-webkit-scrollbar-thumb {
     }
 }
 
+@media (min-width: 1200px) {
+    .h-size {
+        height: 28rem !important;
+    }
+}
+
 

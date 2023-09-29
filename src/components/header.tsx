@@ -8,7 +8,6 @@ const navigation = [
     {name: 'Movie Uploader', href: '/movie-uploader'},
     {name: 'Popular Movie Updater', href: '/popular-movie-updater'},
     {name: 'User Page', href: '/user-page'},
-    {name: 'Movie Banner Uploader', href: '/movie-banner-uploader'},
     {name: 'Browse', href: '/browse'},
 ]
 
