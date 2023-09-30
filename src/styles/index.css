@@ -191,7 +191,7 @@ body::-webkit-scrollbar-thumb {
 @media (min-width: 1475px) {
     .scrollbar-container {
         display: grid;
-        grid-auto-columns: calc(100% - 65rem);
+        grid-auto-columns: calc(100% - 76rem);
         grid-auto-flow: column;
         grid-gap: 10px;
         overflow-x: auto;

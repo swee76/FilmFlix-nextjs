@@ -4,6 +4,7 @@ import {CheckIcon} from '@heroicons/react/20/solid'
 import Header from "../components/header";
 import Footer from "../components/footer";
 import Link from "next/link";
+import Toast from "../components/Toast";
 
 const frequencies = [
     {value: 'monthly', label: 'Monthly', priceSuffix: '/month'},
@@ -47,14 +48,31 @@ function classNames(...classes: any[]) {
 const Pricing = () => {
     const [frequency, setFrequency] = useState(frequencies[0])
     const [selectedTier, setSelectedTier] = useState(tiers[1])
+    const [showToast, setShowToast] = useState(true);
+    const [message, setMessage] = useState('');
+    const[messageStatus, setMessageStatus] = useState(false);
+
+    const closeToast = () => {
+        setShowToast(false);
+    };
 
     const changePricingFrequency = (newFrequency) => {
         setFrequency(newFrequency)
     }
 
+    const savePlan=()=>{
+
+        // setMessage()
+        // setMessageStatus()
+    }
+
     return (
         <div className="animated-bg">
             <Header/>
+            {showToast && (
+                <Toast message={message} isError={messageStatus} onClose={closeToast} />
+            )}
+            {/*<Toast message={`You have purchased the ${selectedTier.name} plan!`} isError={true} onClose={closeToast} />*/}
             <div className="bg-transparent py-24 sm:py-32">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8">
                     <div className="mx-auto max-w-4xl text-center">
@@ -116,8 +134,9 @@ const Pricing = () => {
                                     <span
                                         className="text-sm font-semibold leading-6 text-gray-300">{frequency.priceSuffix}</span>
                                 </p>
-                                <Link
-                                    href={tier.href}
+                                <button
+                                    type="button"
+                                    onClick={savePlan}
                                     aria-describedby={tier.id}
                                     className={classNames(
                                         tier.mostPopular
@@ -127,7 +146,7 @@ const Pricing = () => {
                                     )}
                                 >
                                     Buy plan
-                                </Link>
+                                </button>
                                 <ul role="list" className="mt-8 space-y-3 text-sm leading-6 text-gray-300 xl:mt-10">
                                     {tier.features.map((feature) => (
                                         <li key={feature} className="flex gap-x-3">
