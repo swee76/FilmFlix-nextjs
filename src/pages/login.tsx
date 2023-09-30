@@ -1,11 +1,16 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Header from "../components/header";
 import Footer from "../components/footer";
 import {motion} from "framer-motion"
 import {useRouter} from "next/router";
+import {createUserWithEmailAndPassword} from "firebase/auth";
+import {FirebaseAuth} from "../../firebase";
 
 const Login = () => {
     const router = useRouter()
+
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
 
     const visible = {opacity: 1, y: 0, transition: {duration: 1.5}};
 
@@ -13,6 +18,18 @@ const Login = () => {
         hidden: {opacity: 0, y: 10},
         visible
     };
+
+    const handleUserSignin = () => {
+        createUserWithEmailAndPassword(FirebaseAuth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                router.push('/').then(r => console.log('Successfully created user!'))
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+            });
+    }
 
     return (
         <div className="login-bg-image">
@@ -26,7 +43,7 @@ const Login = () => {
                 </div>
 
                 <div className="mt-2 sm:mx-auto sm:w-full sm:max-w-lg">
-                    <form action="#" method="POST">
+                    <form onSubmit={handleUserSignin}>
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-400">
                                 Email address
@@ -37,6 +54,7 @@ const Login = () => {
                                     name="email"
                                     type="email"
                                     autoComplete="email"
+                                    onChange={(e) => setEmail(e.target.value)}
                                     placeholder="Please enter your email address"
                                     required
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
@@ -57,6 +75,7 @@ const Login = () => {
                                     name="password"
                                     type="password"
                                     autoComplete="current-password"
+                                    onChange={(e) => setPassword(e.target.value)}
                                     placeholder="Please enter your password"
                                     required
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
