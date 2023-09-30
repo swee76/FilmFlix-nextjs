@@ -46,7 +46,6 @@ function classNames(...classes: any[]) {
 
 const Pricing = () => {
     const dispatch = useAppDispatch()
-    const notification = useAppSelector(state => state.notification);
 
     const [frequency, setFrequency] = useState(frequencies[0])
     const [selectedTier, setSelectedTier] = useState(tiers[1])
