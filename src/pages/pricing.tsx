@@ -3,8 +3,10 @@ import {RadioGroup} from '@headlessui/react'
 import {CheckIcon} from '@heroicons/react/20/solid'
 import Header from "../components/header";
 import Footer from "../components/footer";
-import Link from "next/link";
-import Toast from "../components/toast";
+import {ref as databaseRef, set} from 'firebase/database'
+import {FirebaseAuth, FirebaseDatabase} from "../../firebase";
+import {clearMessage, setMessage} from "../features/notificationSlice";
+import {useAppDispatch, useAppSelector} from "../hooks";
 
 const frequencies = [
     {value: 'monthly', label: 'Monthly', priceSuffix: '/month'},
@@ -15,7 +17,6 @@ const tiers = [
     {
         name: 'Basic',
         id: 'tier-basic',
-        href: '#',
         price: {monthly: '$9.99', annually: '$99.99'},
         description: 'Access to a library of classic movies and basic features.',
         features: ['Limited movie selection', 'Standard video quality', 'Basic support'],
@@ -24,7 +25,6 @@ const tiers = [
     {
         name: 'Standard',
         id: 'tier-standard',
-        href: '#',
         price: {monthly: '$19.99', annually: '$199.99'},
         description: 'More movies and improved streaming quality.',
         features: ['Expanded movie selection', 'HD video quality', 'Priority support'],
@@ -33,7 +33,6 @@ const tiers = [
     {
         name: 'Premium',
         id: 'tier-premium',
-        href: '#',
         price: {monthly: '$29.99', annually: '$299.99'},
         description: 'Unlimited access to our entire movie catalog and premium features.',
         features: ['Unlimited movie selection', '4K Ultra HD video quality', '24/7 premium support'],
@@ -46,33 +45,39 @@ function classNames(...classes: any[]) {
 }
 
 const Pricing = () => {
+    const dispatch = useAppDispatch()
+    const notification = useAppSelector(state => state.notification);
+
     const [frequency, setFrequency] = useState(frequencies[0])
     const [selectedTier, setSelectedTier] = useState(tiers[1])
-    const [showToast, setShowToast] = useState(true);
-    const [message, setMessage] = useState('');
-    const[messageStatus, setMessageStatus] = useState(false);
 
-    const closeToast = () => {
-        setShowToast(false);
-    };
-
-    const changePricingFrequency = (newFrequency) => {
+    const changePricingFrequency = (newFrequency: any) => {
         setFrequency(newFrequency)
     }
 
-    const savePlan=()=>{
-
-        // setMessage()
-        // setMessageStatus()
+    const savePlan = () => {
+        const user = FirebaseAuth.currentUser;
+        console.log('user: ' + user)
+        set(databaseRef(FirebaseDatabase, `subscribedPlans/${user.email?.split('@')[0]}/`), {
+            email: user.email,
+            subscribedFrequency: frequency,
+            subscribedTier: selectedTier
+        }).then((result) => {
+            dispatch(setMessage({
+                message: `Successfully saved ${selectedTier.name} plan!`,
+                isError: false,
+                isOpen: true
+            }))
+        }).catch((error) => {
+            dispatch(setMessage({message: 'Failed to save plan!', isError: true, isOpen: true}))
+        }).finally(() => {
+            dispatch(clearMessage())
+        })
     }
 
     return (
         <div className="animated-bg">
             <Header/>
-            {showToast && (
-                <Toast message={message} isError={messageStatus} onClose={closeToast} />
-            )}
-            {/*<Toast message={`You have purchased the ${selectedTier.name} plan!`} isError={true} onClose={closeToast} />*/}
             <div className="bg-transparent py-24 sm:py-32">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8">
                     <div className="mx-auto max-w-4xl text-center">
@@ -142,7 +147,7 @@ const Pricing = () => {
                                         tier.mostPopular
                                             ? 'bg-red-800 text-white shadow-sm hover:bg-red-600 focus-visible:outline-red-500'
                                             : 'bg-white/10 text-white hover:bg-white/20 focus-visible:outline-white',
-                                        'mt-6 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2'
+                                        'mt-6 w-full block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2'
                                     )}
                                 >
                                     Buy plan
