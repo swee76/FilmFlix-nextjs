@@ -9,9 +9,12 @@ import {FirebaseAuth, FirebaseDatabase, FirebaseStorage} from "../../firebase";
 import {getDownloadURL, ref as storageRef, uploadString} from "firebase/storage";
 import {ref as databaseRef, set} from 'firebase/database'
 import {createUserWithEmailAndPassword} from "firebase/auth";
+import {login} from "../features/userSlice";
+import {useAppDispatch} from "../hooks";
 
 const Register = () => {
     const router = useRouter()
+    const dispatch = useAppDispatch()
 
     const [selectedImageFile, setSelectedImageFile] = useState(null)
     const [username, setUsername] = useState('')
@@ -83,6 +86,8 @@ const Register = () => {
             createUserWithEmailAndPassword(FirebaseAuth, email, password)
                 .then((userCredential) => {
                     const user = userCredential.user;
+                    dispatch(login())
+                    localStorage.setItem('email', email)
                     router.push('/').then(r => console.log('Successfully created user!'))
                 })
                 .catch((error) => {

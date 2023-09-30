@@ -3,11 +3,16 @@ import Header from "../components/header";
 import Footer from "../components/footer";
 import {motion} from "framer-motion"
 import {useRouter} from "next/router";
-import {createUserWithEmailAndPassword} from "firebase/auth";
+import {signInWithEmailAndPassword} from "firebase/auth";
 import {FirebaseAuth} from "../../firebase";
+import {useAppDispatch, useAppSelector} from "../hooks";
+import {login} from "../features/userSlice";
+import {setMessage} from "../features/notificationSlice";
 
 const Login = () => {
     const router = useRouter()
+    const dispatch = useAppDispatch()
+    const notification = useAppSelector(state => state.notification)
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -19,15 +24,30 @@ const Login = () => {
         visible
     };
 
-    const handleUserSignin = () => {
-        createUserWithEmailAndPassword(FirebaseAuth, email, password)
+    const handleUserSignin = (e) => {
+        e.preventDefault();
+
+        signInWithEmailAndPassword(FirebaseAuth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
-                router.push('/').then(r => console.log('Successfully created user!'))
+
+                if (user) {
+                    dispatch(login())
+                    localStorage.setItem('email', email)
+
+
+                    router.push('/').then(r => dispatch(setMessage({
+                        message: 'Successfully logged user!',
+                        isError: false,
+                        isOpen: true
+                    })))
+                } else {
+                    dispatch(setMessage({message: 'Error log in user!', isError: true, isOpen: true}))
+                }
+
             })
             .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
+                dispatch(setMessage({message: error.message, isError: true, isOpen: true}))
             });
     }
 
