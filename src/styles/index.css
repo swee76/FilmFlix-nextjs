@@ -45,6 +45,20 @@ body::-webkit-scrollbar-thumb {
     border-radius: 5px; /* Rounded corners */
 }
 
+
+.dropdown-scrollbar::-webkit-scrollbar {
+    width: 4px !important; /* Adjust the width as needed */
+}
+
+.dropdown-scrollbar::-webkit-scrollbar-track {
+    background-color: #7a6666; /* Track color */
+}
+
+.dropdown-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #650f07; /* Thumb color */
+    border-radius: 5px; /* Rounded corners */
+}
+
 .outlined-primary-button {
     border: var(--color5) 2px solid;
 }
