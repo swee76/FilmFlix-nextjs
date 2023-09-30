@@ -1,9 +1,13 @@
-import { configureStore } from '@reduxjs/toolkit'
+import {configureStore} from '@reduxjs/toolkit'
 import counterReducer from './features/counterSlice'
+import userReducer from './features/userSlice'
+import notificationReducer from './features/notificationSlice'
 
-export const store =  configureStore({
+export const store = configureStore({
     reducer: {
         counter: counterReducer,
+        user: userReducer,
+        notification: notificationReducer
     },
 })
 

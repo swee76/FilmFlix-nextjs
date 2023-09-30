@@ -1,8 +1,10 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Dialog} from '@headlessui/react'
 import {Bars3Icon, XMarkIcon} from '@heroicons/react/24/outline'
 import Link from "next/link";
 import Image from "next/image";
+import {useAppDispatch, useAppSelector} from "../hooks";
+import {login, logout} from "../features/userSlice";
 
 const navigation = [
     {name: 'Movie Uploader', href: '/movie-uploader'},
@@ -12,7 +14,21 @@ const navigation = [
 ]
 
 const Header = () => {
+    const dispatch = useAppDispatch()
+    const user = useAppSelector(state => state.user);
+
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+    useEffect(() => {
+        const loggedUser = localStorage.getItem('email')
+        if (loggedUser) {
+            dispatch(login())
+        }
+    }, [])
+
+    const handleSignOut = () => {
+        dispatch(logout())
+    }
 
     return (
         <header className="fixed w-screen bg-neutral-900 z-10">
@@ -40,10 +56,17 @@ const Header = () => {
                             {item.name}
                         </Link>
                     ))}
-                    <Link href="/login"
-                          className="outlined-primary-button px-3 py-1 rounded-lg text-sm font-semibold leading-6 text-gray-400">
-                        Log in
-                    </Link>
+                    {!user.isLoggedIn ? <Link href="/login"
+                                              className="outlined-primary-button px-3 py-1 rounded-lg text-sm font-semibold leading-6 text-gray-400">
+                            Log in
+                        </Link> :
+                        <button
+                            type="button"
+                            onClick={handleSignOut}
+                            className="solid-primary-button text-center -mx-3 block rounded-lg px-3 py-0.5 font-semibold leading-7"
+                        >
+                            Log out
+                        </button>}
                 </div>
             </nav>
             <Dialog as="div" className="lg:hidden" open={mobileMenuOpen} onClose={setMobileMenuOpen}>
@@ -81,13 +104,20 @@ const Header = () => {
                                     </Link>
                                 ))}
                             </div>
-                            <div className="py-6">
-                                <Link
-                                    href="/login"
-                                    className="outlined-primary-button text-center -mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-400 hover:text-gray-800"
-                                >
-                                    Log in
-                                </Link>
+                            <div className="py-6 w-full">
+                                {!user.isLoggedIn ? <Link
+                                        href="/login"
+                                        className="w-full outlined-primary-button text-center -mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-400 hover:text-gray-800"
+                                    >
+                                        Log in
+                                    </Link> :
+                                    <button
+                                        type="button"
+                                        onClick={handleSignOut}
+                                        className="w-full solid-primary-button text-center -mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7"
+                                    >
+                                        Log out
+                                    </button>}
                             </div>
                         </div>
                     </div>
