@@ -1,18 +1,104 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {motion} from "framer-motion";
 import {useRouter} from "next/router";
 import Header from "../components/header";
 import Footer from "../components/footer";
 import {UserCircleIcon} from '@heroicons/react/24/solid'
+import {UserTypes} from "../enums/user-types";
+import {FirebaseAuth, FirebaseDatabase, FirebaseStorage} from "../../firebase";
+import {getDownloadURL, ref as storageRef, uploadString} from "firebase/storage";
+import {ref as databaseRef, set} from 'firebase/database'
+import {createUserWithEmailAndPassword} from "firebase/auth";
 
 const Register = () => {
     const router = useRouter()
+
+    const [selectedImageFile, setSelectedImageFile] = useState(null)
+    const [username, setUsername] = useState('')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [contactNumber, setContactNumber] = useState('')
+    const [hasAcceptedAgreements, setHasAcceptedAgreements] = useState(false)
+    const [fileBase64, setFileBase64] = useState<string>('')
+
     const visible = {opacity: 1, y: 0, transition: {duration: 1.5}};
 
     const itemVariants = {
         hidden: {opacity: 0, y: 10},
         visible
     };
+
+    const handleImageFileChange = async (event: any) => {
+        const file = event.target.files[0]
+        setSelectedImageFile(file.name)
+
+        const base64 = await convertBase64(file)
+        setFileBase64(base64)
+    }
+
+    const convertBase64 = (file: Blob): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const fileReader = new FileReader()
+            fileReader.readAsDataURL(file)
+
+            fileReader.onload = () => {
+                resolve(fileReader.result!.toString())
+            }
+
+            fileReader.onerror = (error) => {
+                reject(error)
+            }
+        })
+
+    }
+
+    const handleUserSignup = (e) => {
+        e.preventDefault()
+
+        const validateImageType = selectedImageFile.includes('.jpg') ||
+            selectedImageFile.includes('.png')
+
+        const validateContactNumber = !isNaN(+contactNumber) && contactNumber.length <= 10
+
+        const validatePassword = !password.includes(' ') && !password.includes('.')
+
+        if (validateImageType && validateContactNumber && validatePassword) {
+            // Create a storage reference for the image using Firebase Storage
+            const storageReference = storageRef(FirebaseStorage, 'user_images/' + email?.split('@')[0] + selectedImageFile!);
+
+            uploadString(storageReference, fileBase64, 'data_url').then((snapshot) => {
+                getDownloadURL(storageReference)
+                    .then((url) => {
+                        set(databaseRef(FirebaseDatabase, `users/${email?.split('@')[0]}/`), {
+                            userImage: url,
+                            username: username,
+                            email: email,
+                            password: password,
+                            contactNumber: contactNumber,
+                            role: UserTypes.subscriber as UserTypes,
+                        })
+                    })
+            })
+
+            createUserWithEmailAndPassword(FirebaseAuth, email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    router.push('/').then(r => console.log('Successfully created user!'))
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                });
+        } else {
+            if (!validateImageType) {
+                console.log('Image type is not valid')
+            } else if (!validatePassword) {
+                console.log('Password cannot contain spaces or periods')
+            } else if (!validateContactNumber) {
+                console.log('Contact Number should be a number & limited to 10 digits')
+            }
+        }
+    }
 
     return (
         <div className="login-bg-image">
@@ -26,12 +112,13 @@ const Register = () => {
                 </div>
 
                 <div className="mt-2 sm:mx-auto sm:w-full sm:max-w-lg">
-                    <form action="#" method="POST">
+                    <form onSubmit={handleUserSignup}>
                         <div>
                             <div className="mt-2 flex items-center gap-x-3">
                                 <UserCircleIcon className="h-12 w-12 text-gray-300" aria-hidden="true"/>
                                 <input
                                     type="file"
+                                    onChange={handleImageFileChange}
                                     className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                                 />
                             </div>
@@ -46,6 +133,7 @@ const Register = () => {
                                     name="username"
                                     type="text"
                                     autoComplete="name"
+                                    onChange={(e) => setUsername(e.target.value)}
                                     placeholder="Please enter your username"
                                     required
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
@@ -63,6 +151,7 @@ const Register = () => {
                                     name="email"
                                     type="email"
                                     autoComplete="email"
+                                    onChange={(e) => setEmail(e.target.value)}
                                     placeholder="Please enter email address"
                                     required
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
@@ -83,6 +172,7 @@ const Register = () => {
                                     name="password"
                                     type="password"
                                     autoComplete="current-password"
+                                    onChange={(e) => setPassword(e.target.value)}
                                     placeholder="Please enter your password"
                                     required
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
@@ -101,8 +191,9 @@ const Register = () => {
                                 <input
                                     id="contact-number"
                                     name="contact-number"
-                                    type="password"
+                                    type="text"
                                     autoComplete="tel"
+                                    onChange={(e) => setContactNumber(e.target.value)}
                                     placeholder="Please enter your contact number"
                                     required
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
@@ -117,6 +208,8 @@ const Register = () => {
                                         id="accept-agreement"
                                         name="accept-agreement"
                                         type="checkbox"
+                                        checked={hasAcceptedAgreements}
+                                        onChange={() => setHasAcceptedAgreements(!hasAcceptedAgreements)}
                                         className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-600"
                                     />
                                 </div>
@@ -131,13 +224,17 @@ const Register = () => {
                         <div className="mt-6 flex gap-6 items-center justify-between">
                             <button
                                 type="submit"
-                                className="flex w-full justify-center rounded-3xl bg-red-900 border border-gray-400 px-4 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
+                                disabled={!hasAcceptedAgreements}
+                                className="flex w-full justify-center rounded-3xl bg-red-900 border border-gray-400 px-4 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800 disabled:bg-neutral-500"
                             >
                                 Sign up
                             </button>
                             <button
-                                type="submit"
-                                onClick={() => router.push('/login')}
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    router.push('/login').then(r => console.log('Redirects to login page'))
+                                }}
                                 className="flex w-full justify-center rounded-3xl bg-red-900 border border-gray-400 px-4 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
                             >
                                 Sign in instead
