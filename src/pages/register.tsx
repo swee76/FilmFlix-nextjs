@@ -10,11 +10,13 @@ import {getDownloadURL, ref as storageRef, uploadString} from "firebase/storage"
 import {ref as databaseRef, set} from 'firebase/database'
 import {createUserWithEmailAndPassword} from "firebase/auth";
 import {login} from "../features/userSlice";
-import {useAppDispatch} from "../hooks";
+import {useAppDispatch, useAppSelector} from "../hooks";
+import {clearMessage, setMessage} from "../features/notificationSlice";
 
 const Register = () => {
     const router = useRouter()
     const dispatch = useAppDispatch()
+    const notification = useAppSelector(state => state.notification);
 
     const [selectedImageFile, setSelectedImageFile] = useState(null)
     const [username, setUsername] = useState('')
@@ -88,20 +90,37 @@ const Register = () => {
                     const user = userCredential.user;
                     dispatch(login())
                     localStorage.setItem('email', email)
-                    router.push('/').then(r => console.log('Successfully created user!'))
+                    router.push('/').then(r => dispatch(setMessage({
+                        message: 'Successfully created user!',
+                        isError: false,
+                        isOpen: true
+                    })))
                 })
                 .catch((error) => {
                     const errorCode = error.code;
                     const errorMessage = error.message;
-                });
+                    dispatch(setMessage({message: errorMessage, isError: true, isOpen: true}))
+                }).finally(() => {
+                dispatch(clearMessage())
+            })
         } else {
             if (!validateImageType) {
-                console.log('Image type is not valid')
+                dispatch(setMessage({message: 'Image type is not valid!', isError: true, isOpen: true}))
             } else if (!validatePassword) {
-                console.log('Password cannot contain spaces or periods')
+                dispatch(setMessage({
+                    message: 'Password cannot contain spaces or periods!',
+                    isError: true,
+                    isOpen: true
+                }))
             } else if (!validateContactNumber) {
-                console.log('Contact Number should be a number & limited to 10 digits')
+                dispatch(setMessage({
+                    message: 'Contact Number should be a number & limited to 10 digits!',
+                    isError: true,
+                    isOpen: true
+                }))
             }
+
+            dispatch(clearMessage())
         }
     }
 
