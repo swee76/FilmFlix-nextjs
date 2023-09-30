@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {Fragment, useState} from 'react';
 import Header from "../components/header";
 import Footer from "../components/footer";
 import Image from "next/image";
-import {PhotoIcon, VideoCameraIcon} from "@heroicons/react/24/solid";
+import {CheckIcon, ChevronUpDownIcon} from "@heroicons/react/24/solid";
+import {Listbox, Transition} from '@headlessui/react'
 import Link from "next/link";
 
 const posts = [
@@ -29,7 +30,28 @@ const posts = [
     },
 ]
 
+const films = [
+    {id: 1, name: 'Wade Cooper'},
+    {id: 2, name: 'Arlene Mccoy'},
+    {id: 3, name: 'Devon Webb'},
+    {id: 4, name: 'Tom Cook'},
+    {id: 5, name: 'Tanya Fox'},
+    {id: 6, name: 'Hellen Schmidt'},
+    {id: 7, name: 'Caroline Schultz'},
+    {id: 8, name: 'Mason Heaney'},
+    {id: 9, name: 'Claudie Smitham'},
+    {id: 10, name: 'Emil Schaefer'},
+]
+
+function classNames(...classes: any[]) {
+    return classes.filter(Boolean).join(' ')
+}
+
 const PopularMovieUpdater = () => {
+    const [selectedFirstFilm, setSelectedFirstFilm] = useState(films[3])
+    const [selectedSecondFilm, setSelectedSecondFilm] = useState(films[3])
+    const [selectedThirdFilm, setSelectedThirdFilm] = useState(films[3])
+
     return (
         <div className="bg-neutral-900">
             <Header/>
@@ -71,154 +93,199 @@ const PopularMovieUpdater = () => {
                         <div className="mx-auto">
                             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                                 <div className="col-span-full">
-                                    <label htmlFor="cover-photo"
-                                           className="block text-sm font-medium leading-6 text-white">
-                                        Cover photo
-                                    </label>
-                                    <div
-                                        className="mt-2 flex justify-center rounded-lg border border-dashed border-white/25 px-6 py-10">
-                                        <div className="text-center">
-                                            <PhotoIcon className="mx-auto h-12 w-12 text-gray-500"
-                                                       aria-hidden="true"/>
-                                            <div className="mt-4 flex text-sm leading-6 text-gray-400">
-                                                <label
-                                                    htmlFor="file-upload"
-                                                    className="relative cursor-pointer rounded-md bg-gray-900 font-semibold text-white hover:text-red-900"
-                                                >
-                                                    <span>Upload a file</span>
-                                                    <input id="file-upload" name="file-upload" type="file"
-                                                           className="sr-only"/>
-                                                </label>
-                                                <p className="pl-1">or drag and drop</p>
-                                            </div>
-                                            <p className="text-xs leading-5 text-gray-400">PNG, JPG, GIF up to
-                                                10MB</p>
-                                        </div>
-                                    </div>
+                                    <Listbox value={selectedFirstFilm} onChange={setSelectedFirstFilm}>
+                                        {({open}) => (
+                                            <>
+                                                <Listbox.Label
+                                                    className="block text-sm font-medium leading-6 text-gray-200">Popular
+                                                    Film 1</Listbox.Label>
+                                                <div className="relative mt-2">
+                                                    <Listbox.Button
+                                                        className="relative w-full cursor-default rounded-md bg-neutral-800 py-1.5 pl-3 pr-10 text-left text-gray-300 shadow-sm ring-1 ring-inset ring-neutral-600 focus:outline-none focus:ring-2 focus:ring-red-900 sm:text-sm sm:leading-6">
+                                                        <span className="block truncate">{selectedFirstFilm.name}</span>
+                                                        <span
+                                                            className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true"/>
+              </span>
+                                                    </Listbox.Button>
+
+                                                    <Transition
+                                                        show={open}
+                                                        as={Fragment}
+                                                        leave="transition ease-in duration-100"
+                                                        leaveFrom="opacity-100"
+                                                        leaveTo="opacity-0"
+                                                    >
+                                                        <Listbox.Options
+                                                            className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-neutral-700 py-1 text-sm shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm dropdown-scrollbar">
+                                                            {films.map((person) => (
+                                                                <Listbox.Option
+                                                                    key={person.id}
+                                                                    className={({active}) =>
+                                                                        classNames(
+                                                                            active ? 'bg-red-800 text-white' : 'text-gray-300',
+                                                                            'relative cursor-default select-none py-2 pl-3 pr-9'
+                                                                        )
+                                                                    }
+                                                                    value={person}
+                                                                >
+                                                                    {({selected, active}) => (
+                                                                        <>
+                        <span className={classNames(selected ? 'font-semibold' : 'font-normal', 'block truncate')}>
+                          {person.name}
+                        </span>
+
+                                                                            {selected ? (
+                                                                                <span
+                                                                                    className={classNames(
+                                                                                        active ? 'text-white' : 'text-gray-300',
+                                                                                        'absolute inset-y-0 right-0 flex items-center pr-4'
+                                                                                    )}
+                                                                                >
+                            <CheckIcon className="h-5 w-5" aria-hidden="true"/>
+                          </span>
+                                                                            ) : null}
+                                                                        </>
+                                                                    )}
+                                                                </Listbox.Option>
+                                                            ))}
+                                                        </Listbox.Options>
+                                                    </Transition>
+                                                </div>
+                                            </>
+                                        )}
+                                    </Listbox>
                                 </div>
                                 <div className="col-span-full">
-                                    <label htmlFor="description"
-                                           className="block text-sm font-medium leading-6 text-white">
-                                        Popular Film Description
-                                    </label>
-                                    <div className="mt-2">
-                <textarea
-                    id="description"
-                    name="description"
-                    rows={3}
-                    className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
-                    defaultValue={''}
-                />
-                                    </div>
-                                    <p className="mt-3 text-sm leading-6 text-gray-400">Write a few sentences about
-                                        the film.</p>
+                                    <Listbox value={selectedSecondFilm} onChange={setSelectedSecondFilm}>
+                                        {({open}) => (
+                                            <>
+                                                <Listbox.Label
+                                                    className="block text-sm font-medium leading-6 text-gray-200">Popular
+                                                    Film 2</Listbox.Label>
+                                                <div className="relative mt-2">
+                                                    <Listbox.Button
+                                                        className="relative w-full cursor-default rounded-md bg-neutral-800 py-1.5 pl-3 pr-10 text-left text-gray-300 shadow-sm ring-1 ring-inset ring-neutral-600 focus:outline-none focus:ring-2 focus:ring-red-900 sm:text-sm sm:leading-6">
+                                                        <span
+                                                            className="block truncate">{selectedSecondFilm.name}</span>
+                                                        <span
+                                                            className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true"/>
+              </span>
+                                                    </Listbox.Button>
+
+                                                    <Transition
+                                                        show={open}
+                                                        as={Fragment}
+                                                        leave="transition ease-in duration-100"
+                                                        leaveFrom="opacity-100"
+                                                        leaveTo="opacity-0"
+                                                    >
+                                                        <Listbox.Options
+                                                            className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-neutral-700 py-1 text-sm shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm dropdown-scrollbar">
+                                                            {films.map((person) => (
+                                                                <Listbox.Option
+                                                                    key={person.id}
+                                                                    className={({active}) =>
+                                                                        classNames(
+                                                                            active ? 'bg-red-800 text-white' : 'text-gray-300',
+                                                                            'relative cursor-default select-none py-2 pl-3 pr-9'
+                                                                        )
+                                                                    }
+                                                                    value={person}
+                                                                >
+                                                                    {({selected, active}) => (
+                                                                        <>
+                        <span className={classNames(selected ? 'font-semibold' : 'font-normal', 'block truncate')}>
+                          {person.name}
+                        </span>
+
+                                                                            {selected ? (
+                                                                                <span
+                                                                                    className={classNames(
+                                                                                        active ? 'text-white' : 'text-gray-300',
+                                                                                        'absolute inset-y-0 right-0 flex items-center pr-4'
+                                                                                    )}
+                                                                                >
+                            <CheckIcon className="h-5 w-5" aria-hidden="true"/>
+                          </span>
+                                                                            ) : null}
+                                                                        </>
+                                                                    )}
+                                                                </Listbox.Option>
+                                                            ))}
+                                                        </Listbox.Options>
+                                                    </Transition>
+                                                </div>
+                                            </>
+                                        )}
+                                    </Listbox>
                                 </div>
 
                                 <div className="col-span-full">
-                                    <legend className="text-sm font-semibold leading-6 text-white">Video
-                                        Categorization
-                                    </legend>
-                                    <p className="mt-1 text-sm leading-6 text-gray-400">Choose the perfect category
-                                        for your video.</p>
-                                    <div
-                                        className="mt-6 space-y-6 grid grid-cols-2 sm:grid-cols-3 items-baseline">
-                                        <div className="flex items-center gap-x-3">
-                                            <input
-                                                id="action-and-adventure-movies"
-                                                name="video-category"
-                                                type="radio"
-                                                className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
-                                            />
-                                            <label htmlFor="action-and-adventure-movies"
-                                                   className="block text-sm font-medium leading-6 text-white">
-                                                Action & Adventure Movies
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center gap-x-3">
-                                            <input
-                                                id="anime-stories"
-                                                name="video-category"
-                                                type="radio"
-                                                className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
-                                            />
-                                            <label htmlFor="anime-stories"
-                                                   className="block text-sm font-medium leading-6 text-white">
-                                                Anime Stories
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center gap-x-3">
-                                            <input
-                                                id="horror-movies"
-                                                name="video-category"
-                                                type="radio"
-                                                className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
-                                            />
-                                            <label htmlFor="horror-movies"
-                                                   className="block text-sm font-medium leading-6 text-white">
-                                                Horror Movies
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center gap-x-3">
-                                            <input
-                                                id="comedy-movies"
-                                                name="video-category"
-                                                type="radio"
-                                                className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
-                                            />
-                                            <label htmlFor="comedy-movies"
-                                                   className="block text-sm font-medium leading-6 text-white">
-                                                Comedy Movies
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center gap-x-3">
-                                            <input
-                                                id="romantic-movies"
-                                                name="video-category"
-                                                type="radio"
-                                                className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
-                                            />
-                                            <label htmlFor="romantic-movies"
-                                                   className="block text-sm font-medium leading-6 text-white">
-                                                Romantic Movies
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center gap-x-3">
-                                            <input
-                                                id="kids-special"
-                                                name="video-category"
-                                                type="radio"
-                                                className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
-                                            />
-                                            <label htmlFor="kids-special"
-                                                   className="block text-sm font-medium leading-6 text-white">
-                                                Kids Special
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center gap-x-3">
-                                            <input
-                                                id="sci-fi-movies"
-                                                name="video-category"
-                                                type="radio"
-                                                className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
-                                            />
-                                            <label htmlFor="sci-fi-movies"
-                                                   className="block text-sm font-medium leading-6 text-white">
-                                                Sci-Fi Movies
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center gap-x-3">
-                                            <input
-                                                id="international-dramas"
-                                                name="video-category"
-                                                type="radio"
-                                                className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
-                                            />
-                                            <label htmlFor="international-dramas"
-                                                   className="block text-sm font-medium leading-6 text-white">
-                                                International Dramas
-                                            </label>
-                                        </div>
-                                    </div>
+                                    <Listbox value={selectedThirdFilm} onChange={setSelectedThirdFilm}>
+                                        {({open}) => (
+                                            <>
+                                                <Listbox.Label
+                                                    className="block text-sm font-medium leading-6 text-gray-200">Popular
+                                                    Film 3</Listbox.Label>
+                                                <div className="relative mt-2">
+                                                    <Listbox.Button
+                                                        className="relative w-full cursor-default rounded-md bg-neutral-800 py-1.5 pl-3 pr-10 text-left text-gray-300 shadow-sm ring-1 ring-inset ring-neutral-600 focus:outline-none focus:ring-2 focus:ring-red-900 sm:text-sm sm:leading-6">
+                                                        <span
+                                                            className="block truncate">{selectedThirdFilm.name}</span>
+                                                        <span
+                                                            className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true"/>
+              </span>
+                                                    </Listbox.Button>
+
+                                                    <Transition
+                                                        show={open}
+                                                        as={Fragment}
+                                                        leave="transition ease-in duration-100"
+                                                        leaveFrom="opacity-100"
+                                                        leaveTo="opacity-0"
+                                                    >
+                                                        <Listbox.Options
+                                                            className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-neutral-700 py-1 text-sm shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm dropdown-scrollbar">
+                                                            {films.map((person) => (
+                                                                <Listbox.Option
+                                                                    key={person.id}
+                                                                    className={({active}) =>
+                                                                        classNames(
+                                                                            active ? 'bg-red-800 text-white' : 'text-gray-300',
+                                                                            'relative cursor-default select-none py-2 pl-3 pr-9'
+                                                                        )
+                                                                    }
+                                                                    value={person}
+                                                                >
+                                                                    {({selected, active}) => (
+                                                                        <>
+                        <span className={classNames(selected ? 'font-semibold' : 'font-normal', 'block truncate')}>
+                          {person.name}
+                        </span>
+
+                                                                            {selected ? (
+                                                                                <span
+                                                                                    className={classNames(
+                                                                                        active ? 'text-white' : 'text-gray-300',
+                                                                                        'absolute inset-y-0 right-0 flex items-center pr-4'
+                                                                                    )}
+                                                                                >
+                            <CheckIcon className="h-5 w-5" aria-hidden="true"/>
+                          </span>
+                                                                            ) : null}
+                                                                        </>
+                                                                    )}
+                                                                </Listbox.Option>
+                                                            ))}
+                                                        </Listbox.Options>
+                                                    </Transition>
+                                                </div>
+                                            </>
+                                        )}
+                                    </Listbox>
                                 </div>
                             </div>
                             <div className="pt-10 flex items-center justify-end gap-x-6">
