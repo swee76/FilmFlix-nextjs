@@ -1,14 +1,110 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Header from "../components/header";
 import Footer from "../components/footer";
-import {PhotoIcon, VideoCameraIcon} from '@heroicons/react/24/solid'
+import {PhotoIcon, VideoCameraIcon, XMarkIcon} from '@heroicons/react/24/solid'
 import Image from "next/image";
+import {getDownloadURL, ref as storageRef, uploadString} from "firebase/storage";
+import {FirebaseDatabase, FirebaseStorage} from "../../firebase";
+import {uuid} from 'uuidv4';
+import {set} from "firebase/database";
+import {ref as databaseRef} from "@firebase/database";
 
 const MovieUploader = () => {
+    const [selectedImageFile, setSelectedImageFile] = useState(null)
+    const [previewImage, setPreviewImage] = useState<string | null>(null)
+    const [selectedVideoFile, setSelectedVideoFile] = useState(null)
+    const [videoDescription, setVideoDescription] = useState('')
+    const [videoCategory, setVideoCategory] = useState('Action & Adventure Movies')
+    const [imageFileBase64, setImageFileBase64] = useState<string>('')
+    const [videoFileBase64, setVideoFileBase64] = useState<string>('')
+
+    const resetFields = (e) => {
+        e.preventDefault()
+        setSelectedImageFile(null)
+        setSelectedVideoFile(null)
+        setPreviewImage(null)
+        setVideoDescription('')
+        setVideoCategory('Action & Adventure Movies')
+    }
+
+    const handleImageFileChange = async (event: any) => {
+        const file = event.target.files[0]
+        setSelectedImageFile(file.name)
+
+        const base64 = await convertBase64(file)
+        setImageFileBase64(base64)
+
+        // Generate a preview image URL
+        const previewImageUrl = URL.createObjectURL(file)
+        setPreviewImage(previewImageUrl)
+    }
+
+    const handleRemoveImageFile = (event: any) => {
+        setSelectedImageFile(null)
+        setPreviewImage(null)
+    }
+
+    const handleVideoFileChange = async (event: any) => {
+        const file = event.target.files[0]
+        setSelectedVideoFile(file.name)
+
+        const base64 = await convertBase64(file)
+        setVideoFileBase64(base64)
+    }
+
+    const convertBase64 = (file: Blob): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const fileReader = new FileReader()
+            fileReader.readAsDataURL(file)
+
+            fileReader.onload = () => {
+                resolve(fileReader.result!.toString())
+            }
+
+            fileReader.onerror = (error) => {
+                reject(error)
+            }
+        })
+
+    }
+
+    const handleMovieUploader = async (e) => {
+        e.preventDefault()
+
+        const validateImageType = selectedImageFile.includes('.jpg') ||
+            selectedImageFile.includes('.png')
+
+        const validateVideoType = selectedVideoFile.includes('.mp4') || selectedVideoFile.includes('.mkv') || selectedVideoFile.includes('.webm')
+
+        if (validateImageType && validateVideoType) {
+            const movieId = uuid()
+            const movieCoverPhotosStorageReference = storageRef(FirebaseStorage, `movie-cover-photos/${movieId}/` + selectedImageFile!);
+
+            const imageUrl = await uploadString(movieCoverPhotosStorageReference, imageFileBase64, 'data_url').then((snapshot) => {
+                return getDownloadURL(movieCoverPhotosStorageReference)
+            })
+
+            const moviesStorageReference = storageRef(FirebaseStorage, `movies/${movieId}/` + selectedVideoFile!)
+
+            const videoUrl = await uploadString(moviesStorageReference, videoFileBase64, 'data_url').then((snapshot) => {
+                return getDownloadURL(moviesStorageReference)
+            })
+
+            if (imageUrl && videoUrl) {
+                set(databaseRef(FirebaseDatabase, `movies/${movieId}/`), {
+                    movieCoverPhoto: imageUrl,
+                    movieUrl: videoUrl,
+                    videoDescription: videoDescription,
+                    videoCategory: videoCategory
+                })
+            }
+        }
+    }
+
     return (
         <div className="bg-neutral-900">
             <Header/>
-            <form>
+            <form onSubmit={handleMovieUploader}>
                 <div className="space-y-12 mx-10 sm:mx-20 pt-24">
                     <div className="pb-2">
                         <div className="text-center">
@@ -41,22 +137,34 @@ const MovieUploader = () => {
                                         </label>
                                         <div
                                             className="mt-2 flex justify-center rounded-lg border border-dashed border-white/25 px-6 py-10">
-                                            <div className="text-center">
-                                                <PhotoIcon className="mx-auto h-12 w-12 text-gray-500"
-                                                           aria-hidden="true"/>
-                                                <div className="mt-4 flex text-sm leading-6 text-gray-400">
-                                                    <label
-                                                        htmlFor="file-upload"
-                                                        className="relative cursor-pointer rounded-md bg-gray-900 font-semibold text-white hover:text-red-900"
-                                                    >
-                                                        <span>Upload a file</span>
-                                                        <input id="file-upload" name="file-upload" type="file"
-                                                               className="sr-only"/>
-                                                    </label>
-                                                    <p className="pl-1">or drag and drop</p>
-                                                </div>
-                                                <p className="text-xs leading-5 text-gray-400">PNG, JPG, GIF up to
-                                                    10MB</p>
+                                            <div className="text-center text-gray-300">
+                                                {!selectedImageFile && <>
+                                                    <PhotoIcon className="mx-auto h-12 w-12 text-gray-500"
+                                                               aria-hidden="true"/>
+                                                    <div className="mt-4 flex text-sm leading-6 text-gray-400">
+                                                        <label
+                                                            htmlFor="file-upload"
+                                                            className="relative cursor-pointer rounded-md bg-gray-900 font-semibold text-white hover:text-red-900"
+                                                        >
+                                                            <span>Upload a file</span>
+                                                            <input id="file-upload" onChange={handleImageFileChange}
+                                                                   name="file-upload" type="file"
+                                                                   className="sr-only"/>
+                                                        </label>
+                                                        <p className="pl-1">or drag and drop</p>
+                                                    </div>
+                                                    <p className="text-xs leading-5 text-gray-400">PNG, JPG, GIF up to
+                                                        10MB</p></>}
+                                                {/* Display preview image */}
+                                                {previewImage && (
+                                                    <div className='flex flex-col mx-auto mb-2 text-gray-300 max-w-fit'>
+                                                        <XMarkIcon onClick={handleRemoveImageFile}
+                                                                   className='w-5 h-5 flex justify-items-start align-top place-self-end'/>
+                                                        <Image src={previewImage} alt='Preview' className='max-w-md'
+                                                               width={200} height={200}/>
+                                                    </div>
+                                                )}
+                                                {selectedImageFile && <p>Selected file: {selectedImageFile}</p>}
                                             </div>
                                         </div>
                                     </div>
@@ -68,21 +176,24 @@ const MovieUploader = () => {
                                         <div
                                             className="mt-2 flex justify-center rounded-lg border border-dashed border-white/25 px-6 py-10">
                                             <div className="text-center">
-                                                <VideoCameraIcon className="mx-auto h-12 w-12 text-gray-500"
-                                                                 aria-hidden="true"/>
-                                                <div className="mt-4 flex text-sm leading-6 text-gray-400">
-                                                    <label
-                                                        htmlFor="file-upload"
-                                                        className="relative cursor-pointer rounded-md bg-gray-900 font-semibold text-white focus-within:outline-none hover:text-red-900"
-                                                    >
-                                                        <span>Upload a file</span>
-                                                        <input id="file-upload" name="file-upload" type="file"
-                                                               className="sr-only"/>
-                                                    </label>
-                                                    <p className="pl-1">or drag and drop</p>
-                                                </div>
-                                                <p className="text-xs leading-5 text-gray-400">MP4, MKV, WEBM up to
-                                                    2GB</p>
+                                                {!selectedVideoFile ? <>
+                                                    <VideoCameraIcon className="mx-auto h-12 w-12 text-gray-500"
+                                                                     aria-hidden="true"/>
+                                                    <div className="mt-4 flex text-sm leading-6 text-gray-400">
+                                                        <label
+                                                            htmlFor="file-upload"
+                                                            className="relative cursor-pointer rounded-md bg-gray-900 font-semibold text-white focus-within:outline-none hover:text-red-900"
+                                                        >
+                                                            <span>Upload a file</span>
+                                                            <input id="file-upload" onChange={handleVideoFileChange}
+                                                                   name="file-upload" type="file"
+                                                                   className="sr-only"/>
+                                                        </label>
+                                                        <p className="pl-1">or drag and drop</p>
+                                                    </div>
+                                                    <p className="text-xs leading-5 text-gray-400">MP4, MKV, WEBM up to
+                                                        2GB</p></> : <p className="text-gray-300">Selected Video
+                                                    File: {selectedVideoFile}</p>}
                                             </div>
                                         </div>
                                     </div>
@@ -96,8 +207,9 @@ const MovieUploader = () => {
                     id="description"
                     name="description"
                     rows={3}
+                    value={videoDescription}
+                    onChange={(e) => setVideoDescription(e.target.value)}
                     className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
-                    defaultValue={''}
                 />
                                         </div>
                                         <p className="mt-3 text-sm leading-6 text-gray-400">Write a few sentences about
@@ -116,6 +228,9 @@ const MovieUploader = () => {
                                                 <input
                                                     id="action-and-adventure-movies"
                                                     name="video-category"
+                                                    value="Action & Adventure Movies"
+                                                    checked={videoCategory === 'Action & Adventure Movies'}
+                                                    onChange={(e) => setVideoCategory(e.target.value)}
                                                     type="radio"
                                                     className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
                                                 />
@@ -128,6 +243,9 @@ const MovieUploader = () => {
                                                 <input
                                                     id="anime-stories"
                                                     name="video-category"
+                                                    value="Anime Stories"
+                                                    checked={videoCategory === 'Anime Stories'}
+                                                    onChange={(e) => setVideoCategory(e.target.value)}
                                                     type="radio"
                                                     className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
                                                 />
@@ -140,6 +258,9 @@ const MovieUploader = () => {
                                                 <input
                                                     id="horror-movies"
                                                     name="video-category"
+                                                    value="Horror Movies"
+                                                    checked={videoCategory === 'Horror Movies'}
+                                                    onChange={(e) => setVideoCategory(e.target.value)}
                                                     type="radio"
                                                     className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
                                                 />
@@ -152,6 +273,9 @@ const MovieUploader = () => {
                                                 <input
                                                     id="comedy-movies"
                                                     name="video-category"
+                                                    value="Comedy Movies"
+                                                    checked={videoCategory === 'Comedy Movies'}
+                                                    onChange={(e) => setVideoCategory(e.target.value)}
                                                     type="radio"
                                                     className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
                                                 />
@@ -164,6 +288,9 @@ const MovieUploader = () => {
                                                 <input
                                                     id="romantic-movies"
                                                     name="video-category"
+                                                    value="Romantic Movies"
+                                                    checked={videoCategory === 'Romantic Movies'}
+                                                    onChange={(e) => setVideoCategory(e.target.value)}
                                                     type="radio"
                                                     className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
                                                 />
@@ -176,6 +303,9 @@ const MovieUploader = () => {
                                                 <input
                                                     id="kids-special"
                                                     name="video-category"
+                                                    value="Kids Special"
+                                                    checked={videoCategory === 'Kids Special'}
+                                                    onChange={(e) => setVideoCategory(e.target.value)}
                                                     type="radio"
                                                     className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
                                                 />
@@ -188,6 +318,9 @@ const MovieUploader = () => {
                                                 <input
                                                     id="sci-fi-movies"
                                                     name="video-category"
+                                                    value="Sci-Fi Movies"
+                                                    checked={videoCategory === 'Sci-Fi Movies'}
+                                                    onChange={(e) => setVideoCategory(e.target.value)}
                                                     type="radio"
                                                     className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
                                                 />
@@ -200,6 +333,9 @@ const MovieUploader = () => {
                                                 <input
                                                     id="international-dramas"
                                                     name="video-category"
+                                                    value="International Dramas"
+                                                    checked={videoCategory === 'International Dramas'}
+                                                    onChange={(e) => setVideoCategory(e.target.value)}
                                                     type="radio"
                                                     className="h-4 w-4 border-white/10 bg-white/5 text-red-900 focus:ring-red-900 focus:ring-offset-gray-900"
                                                 />
@@ -212,7 +348,7 @@ const MovieUploader = () => {
                                     </div>
                                 </div>
                                 <div className="pt-10 flex items-center justify-end gap-x-6">
-                                    <button type="button"
+                                    <button type="button" onClick={resetFields}
                                             className="basis-1/2 outlined-primary-button rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-white">
                                         Cancel
                                     </button>

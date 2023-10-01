@@ -24,7 +24,7 @@ const Login = () => {
         visible
     };
 
-    const handleUserSignin = (e) => {
+    const handleUserSignIn = (e) => {
         e.preventDefault();
 
         signInWithEmailAndPassword(FirebaseAuth, email, password)
@@ -63,7 +63,7 @@ const Login = () => {
                 </div>
 
                 <div className="mt-2 sm:mx-auto sm:w-full sm:max-w-lg">
-                    <form onSubmit={handleUserSignin}>
+                    <form onSubmit={handleUserSignIn}>
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-400">
                                 Email address
@@ -112,7 +112,10 @@ const Login = () => {
                             </button>
                             <button
                                 type="submit"
-                                onClick={() => router.push('/register')}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    router.push('/register')
+                                }}
                                 className="flex w-full justify-center rounded-3xl bg-red-900 border border-gray-400 px-4 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
                             >
                                 Sign up instead
