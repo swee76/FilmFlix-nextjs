@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Header from "../components/header";
 import Footer from "../components/footer";
 import {PhotoIcon, VideoCameraIcon, XMarkIcon} from '@heroicons/react/24/solid'
@@ -32,14 +32,22 @@ const MovieUploader = () => {
 
     const handleImageFileChange = async (event: any) => {
         const file = event.target.files[0]
-        setSelectedImageFile(file.name)
 
-        const base64 = await convertBase64(file)
-        setImageFileBase64(base64)
+        if (file.name.includes('.jpg') || file.name.includes('.jpeg') || file.name.includes('.png')) {
+            setSelectedImageFile(file.name)
 
-        // Generate a preview image URL
-        const previewImageUrl = URL.createObjectURL(file)
-        setPreviewImage(previewImageUrl)
+            const base64 = await convertBase64(file)
+            setImageFileBase64(base64)
+
+            // Generate a preview image URL
+            const previewImageUrl = URL.createObjectURL(file)
+            setPreviewImage(previewImageUrl)
+        } else if (file.name.includes('.mp4') || file.name.includes('.mkv') || file.name.includes('webm')) {
+            setSelectedVideoFile(file.name)
+
+            const base64 = await convertBase64(file)
+            setVideoFileBase64(base64)
+        }
     }
 
     const handleRemoveImageFile = (event: any) => {
@@ -53,6 +61,10 @@ const MovieUploader = () => {
 
         const base64 = await convertBase64(file)
         setVideoFileBase64(base64)
+    }
+
+    const handleRemoveVideoFile = () => {
+        setSelectedVideoFile(null)
     }
 
     const convertBase64 = (file: Blob): Promise<string> => {
@@ -77,7 +89,7 @@ const MovieUploader = () => {
 
         const validateMovieName = movieName.length < 70
 
-        const validateImageType = selectedImageFile.includes('.jpg') ||
+        const validateImageType = selectedImageFile.includes('.jpg') || selectedImageFile.includes('.jpeg') ||
             selectedImageFile.includes('.png')
 
         const validateVideoType = selectedVideoFile.includes('.mp4') || selectedVideoFile.includes('.mkv') || selectedVideoFile.includes('.webm')
@@ -208,7 +220,7 @@ const MovieUploader = () => {
                                         <div
                                             className="mt-2 flex justify-center rounded-lg border border-dashed border-white/25 px-6 py-10">
                                             <div className="text-center">
-                                                {!selectedVideoFile ? <>
+                                                {!selectedVideoFile && <>
                                                     <VideoCameraIcon className="mx-auto h-12 w-12 text-gray-500"
                                                                      aria-hidden="true"/>
                                                     <div className="mt-4 flex text-sm leading-6 text-gray-400">
@@ -224,8 +236,14 @@ const MovieUploader = () => {
                                                         <p className="pl-1">or drag and drop</p>
                                                     </div>
                                                     <p className="text-xs leading-5 text-gray-400">MP4, MKV, WEBM up to
-                                                        2GB</p></> : <p className="text-gray-300">Selected Video
-                                                    File: {selectedVideoFile}</p>}
+                                                        2GB</p></>}
+                                                {selectedVideoFile &&
+                                                    <div className="flex flex-row gap-3 text-gray-300"><p>Selected Video
+                                                        File: {selectedVideoFile}</p><XMarkIcon
+                                                        onClick={handleRemoveVideoFile}
+                                                        className='w-5 h-5 flex justify-items-start align-top place-self-end'/>
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </div>
