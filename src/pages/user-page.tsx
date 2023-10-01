@@ -1,81 +1,102 @@
-import React, {Fragment} from 'react';
+import React, {Fragment, useEffect, useState} from 'react';
 import Header from "../components/header";
 import Footer from "../components/footer";
 import {EllipsisVerticalIcon, EnvelopeIcon, PhoneIcon} from '@heroicons/react/20/solid'
 import {Menu, Transition} from '@headlessui/react'
 import Link from "next/link";
+import {onValue, ref as databaseRef} from 'firebase/database'
+import {FirebaseDatabase} from "../../firebase";
+import Image from "next/image";
 
 function classNames(...classes: any[]) {
     return classes.filter(Boolean).join(' ')
 }
-
-const people = [
-    {
-        name: 'Jane Cooper',
-        title: 'Regional Paradigm Technician',
-        role: 'Subscriber',
-        email: 'janecooper@example.com',
-        telephone: '+1-202-555-0170',
-        imageUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    },
-    {
-        name: 'Jane Cooper',
-        title: 'Regional Paradigm Technician',
-        role: 'Admin',
-        email: 'janecooper1@example.com',
-        telephone: '+1-202-555-0170',
-        imageUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    },
-    {
-        name: 'Jane Cooper',
-        title: 'Regional Paradigm Technician',
-        role: 'Admin',
-        email: 'janecooper2@example.com',
-        telephone: '+1-202-555-0170',
-        imageUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    },
-    {
-        name: 'Jane Cooper',
-        title: 'Regional Paradigm Technician',
-        role: 'Admin',
-        email: 'janecooper3@example.com',
-        telephone: '+1-202-555-0170',
-        imageUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    },
-    {
-        name: 'Jane Cooper',
-        title: 'Regional Paradigm Technician',
-        role: 'Subscriber',
-        email: 'janecooper4@example.com',
-        telephone: '+1-202-555-0170',
-        imageUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    },
-    {
-        name: 'Jane Cooper',
-        title: 'Regional Paradigm Technician',
-        role: 'Admin',
-        email: 'janecooper5@example.com',
-        telephone: '+1-202-555-0170',
-        imageUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    },
-    {
-        name: 'Jane Cooper',
-        title: 'Regional Paradigm Technician',
-        role: 'Subscriber',
-        email: 'janecooper6@example.com',
-        telephone: '+1-202-555-0170',
-        imageUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    },
-]
+//
+// const people = [
+//     {
+//         name: 'Jane Cooper',
+//         title: 'Regional Paradigm Technician',
+//         role: 'Subscriber',
+//         email: 'janecooper@example.com',
+//         telephone: '+1-202-555-0170',
+//         imageUrl:
+//             'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
+//     },
+//     {
+//         name: 'Jane Cooper',
+//         title: 'Regional Paradigm Technician',
+//         role: 'Admin',
+//         email: 'janecooper1@example.com',
+//         telephone: '+1-202-555-0170',
+//         imageUrl:
+//             'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
+//     },
+//     {
+//         name: 'Jane Cooper',
+//         title: 'Regional Paradigm Technician',
+//         role: 'Admin',
+//         email: 'janecooper2@example.com',
+//         telephone: '+1-202-555-0170',
+//         imageUrl:
+//             'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
+//     },
+//     {
+//         name: 'Jane Cooper',
+//         title: 'Regional Paradigm Technician',
+//         role: 'Admin',
+//         email: 'janecooper3@example.com',
+//         telephone: '+1-202-555-0170',
+//         imageUrl:
+//             'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
+//     },
+//     {
+//         name: 'Jane Cooper',
+//         title: 'Regional Paradigm Technician',
+//         role: 'Subscriber',
+//         email: 'janecooper4@example.com',
+//         telephone: '+1-202-555-0170',
+//         imageUrl:
+//             'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
+//     },
+//     {
+//         name: 'Jane Cooper',
+//         title: 'Regional Paradigm Technician',
+//         role: 'Admin',
+//         email: 'janecooper5@example.com',
+//         telephone: '+1-202-555-0170',
+//         imageUrl:
+//             'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
+//     },
+//     {
+//         name: 'Jane Cooper',
+//         title: 'Regional Paradigm Technician',
+//         role: 'Subscriber',
+//         email: 'janecooper6@example.com',
+//         telephone: '+1-202-555-0170',
+//         imageUrl:
+//             'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
+//     },
+// ]
 
 const UserPage = () => {
+    const [userData, setUserData] = useState<any[]>([])
+
+    useEffect(() => {
+        const usersRef = databaseRef(FirebaseDatabase, 'users')
+
+        const fetchData = () => {
+            onValue(usersRef, (snapshot) => {
+                const data = snapshot.val()
+                if (data) {
+                    const dataArray = Object.values(data)
+                    setUserData(dataArray)
+                }
+            })
+        }
+
+        fetchData()
+    }, [])
+
     return (
         <div>
             <Header/>
@@ -89,7 +110,7 @@ const UserPage = () => {
     </span></h2>
                             <div className="my-9">
                                 <div role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                                    {people.map((person) => (
+                                    {userData.map((person) => (
                                         <div key={person.email}
                                              className="col-span-1 divide-y divide-gray-200 rounded-lg bg-red-100 bg-opacity-50 shadow">
                                             <div className="flex flex-col">
@@ -116,7 +137,7 @@ const UserPage = () => {
                                                         <Menu.Items
                                                             className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                                                             <div className="py-1">
-                                                                {person.role === 'Admin' && <Menu.Item>
+                                                                {person.role === 'admin' && <Menu.Item>
                                                                     {({active}) => (
                                                                         <button
                                                                             type="button"
@@ -129,7 +150,7 @@ const UserPage = () => {
                                                                         </button>
                                                                     )}
                                                                 </Menu.Item>}
-                                                                {person.role === 'Subscriber' && <Menu.Item>
+                                                                {person.role === 'subscriber' && <Menu.Item>
                                                                     {({active}) => (
                                                                         <button
                                                                             type="button"
@@ -164,17 +185,17 @@ const UserPage = () => {
                                                     className="flex w-full items-center justify-between space-x-6 px-6 pb-5">
                                                     <div className="flex-1 truncate">
                                                         <div className="flex items-center space-x-3">
-                                                            <h3 className="truncate text-sm font-bold text-gray-900">{person.name}</h3>
+                                                            <h3 className="truncate text-sm font-bold text-gray-900">{person.username}</h3>
                                                             <span
-                                                                className={`inline-flex flex-shrink-0 items-center rounded-full px-1.5 py-0.5 text-xs font-medium  ${person.role === 'Admin' ? 'bg-red-50 text-red-600 ring-red-500/20' : 'bg-orange-50 text-orange-600 ring-orange-500/20'} ring-1 ring-inset`}>
+                                                                className={`inline-flex flex-shrink-0 items-center rounded-full px-1.5 py-0.5 text-xs font-medium  ${person.role === 'admin' ? 'bg-red-50 text-red-600 ring-red-500/20' : 'bg-orange-50 text-orange-600 ring-orange-500/20'} ring-1 ring-inset`}>
                   {person.role}
                 </span>
                                                         </div>
-                                                        <p className="mt-3 truncate text-xs text-gray-800">{person.title}</p>
+                                                        <p className="mt-3 truncate text-xs text-gray-800">{person.email}</p>
                                                     </div>
-                                                    <img className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300"
-                                                         src={person.imageUrl}
-                                                         alt=""/>
+                                                    <Image className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300"
+                                                           src={person.userImage}
+                                                           alt={`${person.username} image`} width={100} height={100}/>
                                                 </div>
                                             </div>
                                             <div>
@@ -185,18 +206,18 @@ const UserPage = () => {
                                                             className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
                                                         >
                                                             <EnvelopeIcon
-                                                                className={`h-5 w-5 ${person.role === 'Admin' ? 'text-red-900' : 'text-orange-900'}`}
+                                                                className={`h-5 w-5 ${person.role === 'admin' ? 'text-red-900' : 'text-orange-900'}`}
                                                                 aria-hidden="true"/>
                                                             Email
                                                         </Link>
                                                     </div>
                                                     <div className="-ml-px flex w-0 flex-1">
                                                         <Link
-                                                            href={`tel:${person.telephone}`}
+                                                            href={`tel:${person.contactNumber}`}
                                                             className="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
                                                         >
                                                             <PhoneIcon
-                                                                className={`h-5 w-5 ${person.role === 'Admin' ? 'text-red-900' : 'text-orange-900'}`}
+                                                                className={`h-5 w-5 ${person.role === 'admin' ? 'text-red-900' : 'text-orange-900'}`}
                                                                 aria-hidden="true"/>
                                                             Call
                                                         </Link>
