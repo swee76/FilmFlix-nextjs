@@ -4,7 +4,7 @@ import Footer from "../components/footer";
 import {PhotoIcon, VideoCameraIcon, XMarkIcon} from '@heroicons/react/24/solid'
 import Image from "next/image";
 import {getDownloadURL, ref as storageRef, uploadString} from "firebase/storage";
-import {FirebaseDatabase, FirebaseStorage} from "../../firebase";
+import {FirebaseAuth, FirebaseDatabase, FirebaseStorage} from "../../firebase";
 import {uuid} from 'uuidv4';
 import {set} from "firebase/database";
 import {ref as databaseRef} from "@firebase/database";
@@ -95,7 +95,8 @@ const MovieUploader = () => {
                     movieCoverPhoto: imageUrl,
                     movieUrl: videoUrl,
                     videoDescription: videoDescription,
-                    videoCategory: videoCategory
+                    videoCategory: videoCategory,
+                    uploadedUser: FirebaseAuth.currentUser.email
                 })
             }
         }

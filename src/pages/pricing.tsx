@@ -56,7 +56,6 @@ const Pricing = () => {
 
     const savePlan = () => {
         const user = FirebaseAuth.currentUser;
-        console.log('user: ' + user)
         set(databaseRef(FirebaseDatabase, `subscribedPlans/${user.email?.split('@')[0]}/`), {
             email: user.email,
             subscribedFrequency: frequency,
