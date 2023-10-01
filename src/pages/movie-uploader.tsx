@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Header from "../components/header";
 import Footer from "../components/footer";
 import {PhotoIcon, VideoCameraIcon, XMarkIcon} from '@heroicons/react/24/solid'
@@ -8,8 +8,11 @@ import {FirebaseAuth, FirebaseDatabase, FirebaseStorage} from "../../firebase";
 import {uuid} from 'uuidv4';
 import {set} from "firebase/database";
 import {ref as databaseRef} from "@firebase/database";
+import Spinner from "../components/spinner";
 
 const MovieUploader = () => {
+    const [isLoading, setIsLoading] = useState(false)
+    const [movieName, setMovieName] = useState('')
     const [selectedImageFile, setSelectedImageFile] = useState(null)
     const [previewImage, setPreviewImage] = useState<string | null>(null)
     const [selectedVideoFile, setSelectedVideoFile] = useState(null)
@@ -18,8 +21,8 @@ const MovieUploader = () => {
     const [imageFileBase64, setImageFileBase64] = useState<string>('')
     const [videoFileBase64, setVideoFileBase64] = useState<string>('')
 
-    const resetFields = (e) => {
-        e.preventDefault()
+    const resetFields = () => {
+        setMovieName('')
         setSelectedImageFile(null)
         setSelectedVideoFile(null)
         setPreviewImage(null)
@@ -29,14 +32,22 @@ const MovieUploader = () => {
 
     const handleImageFileChange = async (event: any) => {
         const file = event.target.files[0]
-        setSelectedImageFile(file.name)
 
-        const base64 = await convertBase64(file)
-        setImageFileBase64(base64)
+        if (file.name.includes('.jpg') || file.name.includes('.jpeg') || file.name.includes('.png')) {
+            setSelectedImageFile(file.name)
 
-        // Generate a preview image URL
-        const previewImageUrl = URL.createObjectURL(file)
-        setPreviewImage(previewImageUrl)
+            const base64 = await convertBase64(file)
+            setImageFileBase64(base64)
+
+            // Generate a preview image URL
+            const previewImageUrl = URL.createObjectURL(file)
+            setPreviewImage(previewImageUrl)
+        } else if (file.name.includes('.mp4') || file.name.includes('.mkv') || file.name.includes('webm')) {
+            setSelectedVideoFile(file.name)
+
+            const base64 = await convertBase64(file)
+            setVideoFileBase64(base64)
+        }
     }
 
     const handleRemoveImageFile = (event: any) => {
@@ -50,6 +61,10 @@ const MovieUploader = () => {
 
         const base64 = await convertBase64(file)
         setVideoFileBase64(base64)
+    }
+
+    const handleRemoveVideoFile = () => {
+        setSelectedVideoFile(null)
     }
 
     const convertBase64 = (file: Blob): Promise<string> => {
@@ -68,15 +83,18 @@ const MovieUploader = () => {
 
     }
 
-    const handleMovieUploader = async (e) => {
-        e.preventDefault()
+    const handleMovieUploader = async () => {
 
-        const validateImageType = selectedImageFile.includes('.jpg') ||
+        setIsLoading(true)
+
+        const validateMovieName = movieName.length < 70
+
+        const validateImageType = selectedImageFile.includes('.jpg') || selectedImageFile.includes('.jpeg') ||
             selectedImageFile.includes('.png')
 
         const validateVideoType = selectedVideoFile.includes('.mp4') || selectedVideoFile.includes('.mkv') || selectedVideoFile.includes('.webm')
 
-        if (validateImageType && validateVideoType) {
+        if (validateMovieName && validateImageType && validateVideoType) {
             const movieId = uuid()
             const movieCoverPhotosStorageReference = storageRef(FirebaseStorage, `movie-cover-photos/${movieId}/` + selectedImageFile!);
 
@@ -92,6 +110,7 @@ const MovieUploader = () => {
 
             if (imageUrl && videoUrl) {
                 set(databaseRef(FirebaseDatabase, `movies/${movieId}/`), {
+                    movieName: movieName,
                     movieCoverPhoto: imageUrl,
                     movieUrl: videoUrl,
                     videoDescription: videoDescription,
@@ -100,12 +119,18 @@ const MovieUploader = () => {
                 })
             }
         }
+        resetFields()
+        setIsLoading(false)
     }
 
     return (
-        <div className="bg-neutral-900">
+        <div className={`bg-neutral-900 ${isLoading ? 'overflow-hidden' : ''}`}>
+            {isLoading && <Spinner isLoading={isLoading}/>}
             <Header/>
-            <form onSubmit={handleMovieUploader}>
+            <form onSubmit={(e) => {
+                e.preventDefault();
+                handleMovieUploader()
+            }}>
                 <div className="space-y-12 mx-10 sm:mx-20 pt-24">
                     <div className="pb-2">
                         <div className="text-center">
@@ -131,6 +156,24 @@ const MovieUploader = () => {
 
                             <div className="w-full lg:basis-2/3">
                                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                                    <div className="col-span-full">
+                                        <label htmlFor="movie-name"
+                                               className="block text-sm font-medium leading-6 text-gray-400">
+                                            Movie Name
+                                        </label>
+                                        <div className="mt-2">
+                                            <input
+                                                id="movie-name"
+                                                name="movie-name"
+                                                type="text"
+                                                value={movieName}
+                                                onChange={(e) => setMovieName(e.target.value)}
+                                                placeholder="Enter your movie name"
+                                                required
+                                                className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
+                                            />
+                                        </div>
+                                    </div>
                                     <div className="col-span-full">
                                         <label htmlFor="cover-photo"
                                                className="block text-sm font-medium leading-6 text-white">
@@ -177,7 +220,7 @@ const MovieUploader = () => {
                                         <div
                                             className="mt-2 flex justify-center rounded-lg border border-dashed border-white/25 px-6 py-10">
                                             <div className="text-center">
-                                                {!selectedVideoFile ? <>
+                                                {!selectedVideoFile && <>
                                                     <VideoCameraIcon className="mx-auto h-12 w-12 text-gray-500"
                                                                      aria-hidden="true"/>
                                                     <div className="mt-4 flex text-sm leading-6 text-gray-400">
@@ -193,8 +236,14 @@ const MovieUploader = () => {
                                                         <p className="pl-1">or drag and drop</p>
                                                     </div>
                                                     <p className="text-xs leading-5 text-gray-400">MP4, MKV, WEBM up to
-                                                        2GB</p></> : <p className="text-gray-300">Selected Video
-                                                    File: {selectedVideoFile}</p>}
+                                                        2GB</p></>}
+                                                {selectedVideoFile &&
+                                                    <div className="flex flex-row gap-3 text-gray-300"><p>Selected Video
+                                                        File: {selectedVideoFile}</p><XMarkIcon
+                                                        onClick={handleRemoveVideoFile}
+                                                        className='w-5 h-5 flex justify-items-start align-top place-self-end'/>
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </div>
@@ -349,7 +398,10 @@ const MovieUploader = () => {
                                     </div>
                                 </div>
                                 <div className="pt-10 flex items-center justify-end gap-x-6">
-                                    <button type="button" onClick={resetFields}
+                                    <button type="button" onClick={(e) => {
+                                        e.preventDefault()
+                                        resetFields()
+                                    }}
                                             className="basis-1/2 outlined-primary-button rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-white">
                                         Cancel
                                     </button>
