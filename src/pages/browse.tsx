@@ -15,7 +15,7 @@ import HorrorMovies from "../components/horror-movies";
 import ComedyMovies from "../components/comedy-movies";
 import RomanticMovies from "../components/romantic-movies";
 import KidsSpecial from "../components/kids-special";
-import SciFiMovies from "../../public/images/sci-fi-movies";
+import SciFiMovies from "../components/sci-fi-movies";
 import InternationalDramas from "../components/international-dramas";
 import PopularOnFilmflix from "../components/popular-on-filmflix";
 
