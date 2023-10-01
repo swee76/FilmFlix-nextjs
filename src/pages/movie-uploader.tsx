@@ -8,8 +8,11 @@ import {FirebaseAuth, FirebaseDatabase, FirebaseStorage} from "../../firebase";
 import {uuid} from 'uuidv4';
 import {set} from "firebase/database";
 import {ref as databaseRef} from "@firebase/database";
+import Spinner from "../components/spinner";
 
 const MovieUploader = () => {
+    const [isLoading, setIsLoading] = useState(false)
+    const [movieName, setMovieName] = useState('')
     const [selectedImageFile, setSelectedImageFile] = useState(null)
     const [previewImage, setPreviewImage] = useState<string | null>(null)
     const [selectedVideoFile, setSelectedVideoFile] = useState(null)
@@ -18,8 +21,8 @@ const MovieUploader = () => {
     const [imageFileBase64, setImageFileBase64] = useState<string>('')
     const [videoFileBase64, setVideoFileBase64] = useState<string>('')
 
-    const resetFields = (e) => {
-        e.preventDefault()
+    const resetFields = () => {
+        setMovieName('')
         setSelectedImageFile(null)
         setSelectedVideoFile(null)
         setPreviewImage(null)
@@ -68,15 +71,18 @@ const MovieUploader = () => {
 
     }
 
-    const handleMovieUploader = async (e) => {
-        e.preventDefault()
+    const handleMovieUploader = async () => {
+
+        setIsLoading(true)
+
+        const validateMovieName = movieName.length < 70
 
         const validateImageType = selectedImageFile.includes('.jpg') ||
             selectedImageFile.includes('.png')
 
         const validateVideoType = selectedVideoFile.includes('.mp4') || selectedVideoFile.includes('.mkv') || selectedVideoFile.includes('.webm')
 
-        if (validateImageType && validateVideoType) {
+        if (validateMovieName && validateImageType && validateVideoType) {
             const movieId = uuid()
             const movieCoverPhotosStorageReference = storageRef(FirebaseStorage, `movie-cover-photos/${movieId}/` + selectedImageFile!);
 
@@ -92,6 +98,7 @@ const MovieUploader = () => {
 
             if (imageUrl && videoUrl) {
                 set(databaseRef(FirebaseDatabase, `movies/${movieId}/`), {
+                    movieName: movieName,
                     movieCoverPhoto: imageUrl,
                     movieUrl: videoUrl,
                     videoDescription: videoDescription,
@@ -100,12 +107,18 @@ const MovieUploader = () => {
                 })
             }
         }
+        resetFields()
+        setIsLoading(false)
     }
 
     return (
-        <div className="bg-neutral-900">
+        <div className={`bg-neutral-900 ${isLoading ? 'overflow-hidden' : ''}`}>
+            {isLoading && <Spinner isLoading={isLoading}/>}
             <Header/>
-            <form onSubmit={handleMovieUploader}>
+            <form onSubmit={(e) => {
+                e.preventDefault();
+                handleMovieUploader()
+            }}>
                 <div className="space-y-12 mx-10 sm:mx-20 pt-24">
                     <div className="pb-2">
                         <div className="text-center">
@@ -131,6 +144,24 @@ const MovieUploader = () => {
 
                             <div className="w-full lg:basis-2/3">
                                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                                    <div className="col-span-full">
+                                        <label htmlFor="movie-name"
+                                               className="block text-sm font-medium leading-6 text-gray-400">
+                                            Movie Name
+                                        </label>
+                                        <div className="mt-2">
+                                            <input
+                                                id="movie-name"
+                                                name="movie-name"
+                                                type="text"
+                                                value={movieName}
+                                                onChange={(e) => setMovieName(e.target.value)}
+                                                placeholder="Enter your movie name"
+                                                required
+                                                className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-red-900 sm:text-sm sm:leading-6"
+                                            />
+                                        </div>
+                                    </div>
                                     <div className="col-span-full">
                                         <label htmlFor="cover-photo"
                                                className="block text-sm font-medium leading-6 text-white">
@@ -349,7 +380,10 @@ const MovieUploader = () => {
                                     </div>
                                 </div>
                                 <div className="pt-10 flex items-center justify-end gap-x-6">
-                                    <button type="button" onClick={resetFields}
+                                    <button type="button" onClick={(e) => {
+                                        e.preventDefault()
+                                        resetFields()
+                                    }}
                                             className="basis-1/2 outlined-primary-button rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-white">
                                         Cancel
                                     </button>
