@@ -13,7 +13,7 @@ const Toast = () => {
 
     return (<>
             {notification.isOpen && <div
-                className={`fixed top-20 right-10 ${notification.isError ? 'text-red-900 bg-red-100' : 'text-green-900 bg-green-100'} p-2 rounded-lg flex justify-between items-center`}>
+                className={`fixed top-20 right-10 z-20 ${notification.isError ? 'text-red-900 bg-red-100' : 'text-green-900 bg-green-100'} p-2 rounded-lg flex justify-between items-center`}>
                 <div>{notification.message}</div>
                 <button onClick={closeToast}
                         className={`${notification.isError ? 'text-red-900' : 'text-green-900'} hover:text-red-500 focus:outline-none`}>
