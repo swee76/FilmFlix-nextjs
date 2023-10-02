@@ -17,7 +17,7 @@ import RomanticMovies from "../components/romantic-movies";
 import KidsSpecial from "../components/kids-special";
 import SciFiMovies from "../components/sci-fi-movies";
 import InternationalDramas from "../components/international-dramas";
-import PopularOnFilmflix from "../components/popular-on-filmflix";
+import PopularOnFilmFlix from "../components/popular-on-film-flix";
 import {getTopicIdByName} from "../utils/film-category-list";
 
 const Browse = () => {
@@ -83,7 +83,7 @@ const Browse = () => {
                 </Swiper>
             </div>
             <div className="my-10 mx-20 text-2xl text-white">Popular on FilmFlix</div>
-            <PopularOnFilmflix/>
+            <PopularOnFilmFlix/>
             <div id={getTopicIdByName('Action & Adventure Movies')}
                  className="my-10 mx-20 text-2xl text-white scroll-target">Action & Adventure Movies
             </div>
