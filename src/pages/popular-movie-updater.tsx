@@ -54,7 +54,6 @@ const PopularMovieUpdater = () => {
     const fetchData = () => {
         const moviesRef = databaseRef(FirebaseDatabase, 'movies')
 
-
         onValue(moviesRef, (snapshot) => {
             const data = snapshot.val()
             if (data) {
