@@ -41,44 +41,44 @@ const Browse = () => {
                     <SwiperSlide><Image className="object-cover max-w-none"
                                         src="/images/Spiderman-noway-home-poster.jpg"
                                         alt="spiderman noway home banner image"
-                                        width={6000} height={2000}/></SwiperSlide>
+                                        width={6000} height={2000} priority/></SwiperSlide>
                     <SwiperSlide><Image className="object-cover max-w-none" src="/images/john-wick-poster.jpg"
                                         alt="john wick 4 banner image"
-                                        width={6000} height={2000}/></SwiperSlide>
+                                        width={6000} height={2000} priority/></SwiperSlide>
                     <SwiperSlide><Image className="object-cover max-w-none" src="/images/mr-robot-season-2-poster.jpg"
                                         alt="mr robot season 2 banner image"
-                                        width={6000} height={2000}/></SwiperSlide>
+                                        width={6000} height={2000} priority/></SwiperSlide>
                     <SwiperSlide><Image className="object-cover max-w-none" src="/images/inception-poster.jpg"
                                         alt="inception banner image"
-                                        width={6000} height={2000}/></SwiperSlide>
+                                        width={6000} height={2000} priority/></SwiperSlide>
                     <SwiperSlide><Image className="object-cover max-w-none" src="/images/tenet-poster.jpg"
                                         alt="tenet banner image"
-                                        width={6000} height={2000}/></SwiperSlide>
+                                        width={6000} height={2000} priority/></SwiperSlide>
                     <SwiperSlide><Image className="object-cover max-w-none" src="/images/breaking-down-poster.jpg"
                                         alt="breaking down banner image"
-                                        width={6000} height={2000}/></SwiperSlide>
+                                        width={6000} height={2000} priority/></SwiperSlide>
                     <SwiperSlide><Image className="object-cover max-w-none" src="/images/batman-poster.jpg"
                                         alt="Batman banner image"
-                                        width={6000} height={2000}/></SwiperSlide>
+                                        width={6000} height={2000} priority/></SwiperSlide>
                     <SwiperSlide><Image className="object-cover max-w-none" src="/images/Karate-Kid-poster.jpg"
                                         alt="the karate kid banner image"
-                                        width={6000} height={2000}/></SwiperSlide>
+                                        width={6000} height={2000} priority/></SwiperSlide>
                     <SwiperSlide><Image className="object-cover max-w-none" src="/images/Avatar-poster.jpg"
                                         alt="avatar banner image"
-                                        width={6000} height={2000}/></SwiperSlide>
+                                        width={6000} height={2000} priority/></SwiperSlide>
                     <SwiperSlide><Image className="object-cover max-w-none" src="/images/naruto-poster.jpg"
                                         alt="naruto banner image"
-                                        width={6000} height={2000}/></SwiperSlide>
+                                        width={6000} height={2000} priority/></SwiperSlide>
                     <SwiperSlide><Image className="object-cover max-w-none" src="/images/maxresdefault-poster.jpg"
                                         alt="john wick 2 banner image"
-                                        width={6000} height={2000}/></SwiperSlide>
+                                        width={6000} height={2000} priority/></SwiperSlide>
                     <SwiperSlide><Image className="object-cover max-w-none" src="/images/oppenheimer-poster.jpg"
                                         alt="oppenheimer banner image"
-                                        width={6000} height={2000}/></SwiperSlide>
+                                        width={6000} height={2000} priority/></SwiperSlide>
                     <SwiperSlide><Image className="object-cover max-w-none"
                                         src="/images/The-Last-Knight-transformers-poster.jpg"
                                         alt="Transformers banner image"
-                                        width={6000} height={2000}/></SwiperSlide>
+                                        width={6000} height={2000} priority/></SwiperSlide>
                 </Swiper>
             </div>
             <div className="my-10 mx-20 text-2xl text-white">Popular on FilmFlix</div>

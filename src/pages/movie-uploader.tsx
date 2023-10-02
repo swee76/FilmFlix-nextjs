@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import Header from "../components/header";
 import Footer from "../components/footer";
 import {PhotoIcon, VideoCameraIcon, XMarkIcon} from '@heroicons/react/24/solid'
@@ -109,7 +109,8 @@ const MovieUploader = () => {
             })
 
             if (imageUrl && videoUrl) {
-                set(databaseRef(FirebaseDatabase, `movies/${movieId}/`), {
+                await set(databaseRef(FirebaseDatabase, `movies/${movieId}/`), {
+                    movieId: movieId,
                     movieName: movieName,
                     movieCoverPhoto: imageUrl,
                     movieUrl: videoUrl,
@@ -129,7 +130,7 @@ const MovieUploader = () => {
             <Header/>
             <form onSubmit={(e) => {
                 e.preventDefault();
-                handleMovieUploader()
+                handleMovieUploader().then(res => console.log('Successfully Uploaded!'))
             }}>
                 <div className="space-y-12 mx-10 sm:mx-20 pt-24">
                     <div className="pb-2">
