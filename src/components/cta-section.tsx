@@ -39,7 +39,7 @@ const CtaSection = () => {
                             <Image
                                 src="/images/Across-the-Spider-Verse-2023-poster.jpg"
                                 alt="spiderman film poster"
-                                className="aspect-[7/5] max-w-none rounded-2xl bg-gray-50 object-cover"
+                                className="aspect-[7/5] max-w-none w-auto rounded-2xl bg-gray-50 object-cover"
                                 width={'600'}
                                 height={'1000'}
                             />
@@ -50,7 +50,7 @@ const CtaSection = () => {
                                 <Image
                                     src="/images/Jujutsu_Kaisen-poster.jpg"
                                     alt="Jujutsu kaisen poster"
-                                    className="aspect-[4/4.3] max-w-none flex-none rounded-2xl bg-gray-50 object-left-top"
+                                    className="aspect-[4/4.3] max-w-none w-auto flex-none rounded-2xl bg-gray-50 object-left-top"
                                     width={'300'}
                                     height={'6000'}
                                 />
@@ -59,7 +59,7 @@ const CtaSection = () => {
                                 <Image
                                     src="/images/Better-call-saul.jpg"
                                     alt="Better Call Saul poster"
-                                    className="aspect-[7/5] max-w-none flex-none rounded-2xl bg-gray-50 object-cover"
+                                    className="aspect-[7/5] max-w-none w-auto flex-none rounded-2xl bg-gray-50 object-cover"
                                     width={'600'}
                                     height={'2000'}
                                 />
@@ -68,7 +68,7 @@ const CtaSection = () => {
                                 <Image
                                     src="/images/Love-death-plus-robots.jpg"
                                     alt="Interstellar poster"
-                                    className="aspect-[4/3] max-w-none rounded-2xl bg-gray-50 object-cover"
+                                    className="aspect-[4/3] max-w-none w-auto rounded-2xl bg-gray-50 object-cover"
                                     width={'400'}
                                     height={'1700'}
                                 />

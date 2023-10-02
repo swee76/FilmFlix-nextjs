@@ -18,7 +18,6 @@ const Index = () => {
             .then((snapshot) => {
                 if (snapshot.exists()) {
                     setMovieInfo(snapshot.val())
-                    console.log(snapshot)
                 } else {
                     console.log('No data available')
                 }
@@ -30,10 +29,6 @@ const Index = () => {
                 setIsLoading(false)
             })
     }, [router.query.id])
-
-    useEffect(() => {
-        console.log(movieInfo)
-    }, [movieInfo])
 
     return (
         <div className="bg-neutral-900">

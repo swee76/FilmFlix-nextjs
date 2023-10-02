@@ -222,3 +222,7 @@ html {
     scroll-behavior: smooth;
 }
 
+.movie-name-length{
+    white-space: pre-wrap;
+}
+
