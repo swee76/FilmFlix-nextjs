@@ -213,4 +213,12 @@ body::-webkit-scrollbar-thumb {
     overflow: hidden;
 }
 
+.scroll-target {
+    scroll-margin-top: 150px; /* Set your desired offset value (e.g., top-50) */
+}
+
+/* Smooth scrolling behavior */
+html {
+    scroll-behavior: smooth;
+}
 

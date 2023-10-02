@@ -18,6 +18,7 @@ import KidsSpecial from "../components/kids-special";
 import SciFiMovies from "../components/sci-fi-movies";
 import InternationalDramas from "../components/international-dramas";
 import PopularOnFilmflix from "../components/popular-on-filmflix";
+import {getTopicIdByName} from "../utils/film-category-list";
 
 const Browse = () => {
     return (
@@ -83,21 +84,27 @@ const Browse = () => {
             </div>
             <div className="my-10 mx-20 text-2xl text-white">Popular on FilmFlix</div>
             <PopularOnFilmflix/>
-            <div className="my-10 mx-20 text-2xl text-white">Action & Adventure Movies</div>
+            <div id={getTopicIdByName('Action & Adventure Movies')}
+                 className="my-10 mx-20 text-2xl text-white scroll-target">Action & Adventure Movies
+            </div>
             <ActionAndAdventureMovies/>
-            <div className="my-10 mx-20 text-2xl text-white">Anime Stories</div>
+            <div id={getTopicIdByName('Anime Stories')} className="my-10 mx-20 text-2xl text-white scroll-target">Anime
+                Stories
+            </div>
             <AnimeStories/>
-            <div className="my-10 mx-20 text-2xl text-white">Horror Movies</div>
+            <div id={getTopicIdByName('Horror Movies')} className="my-10 mx-20 text-2xl text-white scroll-target">Horror
+                Movies
+            </div>
             <HorrorMovies/>
-            <div className="my-10 mx-20 text-2xl text-white">Comedy Movies</div>
+            <div id={getTopicIdByName('Comedy Movies')} className="my-10 mx-20 text-2xl text-white scroll-target">Comedy Movies</div>
             <ComedyMovies/>
-            <div className="my-10 mx-20 text-2xl text-white">Romantic Movies</div>
+            <div id={getTopicIdByName('Romantic Movies')} className="my-10 mx-20 text-2xl text-white scroll-target">Romantic Movies</div>
             <RomanticMovies/>
-            <div className="my-10 mx-20 text-2xl text-white">Kids Special</div>
+            <div id={getTopicIdByName('Kids Special')} className="my-10 mx-20 text-2xl text-white scroll-target">Kids Special</div>
             <KidsSpecial/>
-            <div className="my-10 mx-20 text-2xl text-white">Sci-Fi Movies</div>
+            <div id={getTopicIdByName('Sci-Fi Movies')} className="my-10 mx-20 text-2xl text-white scroll-target">Sci-Fi Movies</div>
             <SciFiMovies/>
-            <div className="my-10 mx-20 text-2xl text-white">International Dramas</div>
+            <div id={getTopicIdByName('International Dramas')} className="my-10 mx-20 text-2xl text-white scroll-target">International Dramas</div>
             <InternationalDramas/>
             <Footer/>
         </div>
