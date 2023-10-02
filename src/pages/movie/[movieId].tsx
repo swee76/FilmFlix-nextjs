@@ -47,6 +47,15 @@ const Index = () => {
                     url={movieInfo?.movieUrl}
                     playing={true} controls={true}/>
             </div>
+            <div className="mx-20 text-gray-300">
+                <div className="flex items-center gap-5">
+                    <h3 className="text-3xl font-semibold">{movieInfo?.movieName}</h3>
+                    <div
+                        className="bg-stone-700 bg-opacity-30 text-red-900 px-1.5 py-0.5 text-xs rounded-lg text-center max-w-fit">
+                        <span className="gradient-text">{movieInfo?.videoCategory}</span></div>
+                </div>
+                <p className="mt-3 text-gray-400">{movieInfo?.videoDescription}</p>
+            </div>
             <Footer/>
         </div>
     );
