@@ -15,19 +15,19 @@ function classNames(...classes: any[]) {
 const UserPage = () => {
     const [userData, setUserData] = useState<any[]>([])
 
-    useEffect(() => {
+    const fetchData = () => {
         const usersRef = databaseRef(FirebaseDatabase, 'users')
 
-        const fetchData = () => {
-            onValue(usersRef, (snapshot) => {
-                const data = snapshot.val()
-                if (data) {
-                    const dataArray = Object.values(data)
-                    setUserData(dataArray)
-                }
-            })
-        }
+        onValue(usersRef, (snapshot) => {
+            const data = snapshot.val()
+            if (data) {
+                const dataArray = Object.values(data)
+                setUserData(dataArray)
+            }
+        })
+    }
 
+    useEffect(() => {
         fetchData()
     }, [])
 
