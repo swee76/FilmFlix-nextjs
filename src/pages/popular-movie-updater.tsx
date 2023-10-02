@@ -87,9 +87,9 @@ const PopularMovieUpdater = () => {
     const handleSavingPopularMovies = () => {
         const timestamp = new Date()
         const popularFilmId = uuid()
-        console.log(timestamp)
+
         set(databaseRef(FirebaseDatabase, `popularFilms/${popularFilmId}/`), {
-            EntryDate: timestamp.toString(),
+            entryDate: timestamp.toString(),
             popularFilmId: popularFilmId,
             firstPopularFilm: selectedFirstFilm,
             secondPopularFilm: selectedSecondFilm,

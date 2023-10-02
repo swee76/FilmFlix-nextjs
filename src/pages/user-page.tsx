@@ -7,12 +7,15 @@ import Link from "next/link";
 import {onValue, ref as databaseRef} from 'firebase/database'
 import {FirebaseDatabase} from "../../firebase";
 import Image from "next/image";
+import Spinner from "../components/spinner";
 
 function classNames(...classes: any[]) {
     return classes.filter(Boolean).join(' ')
 }
 
 const UserPage = () => {
+    const [isLoading, setIsLoading] = useState(false)
+
     const [userData, setUserData] = useState<any[]>([])
 
     const fetchData = () => {
@@ -28,11 +31,19 @@ const UserPage = () => {
     }
 
     useEffect(() => {
+        setIsLoading(true)
         fetchData()
     }, [])
 
+    useEffect(() => {
+        if (userData && userData.length) {
+            setIsLoading(false)
+        }
+    }, [userData]);
+
     return (
         <div>
+            {isLoading && <Spinner isLoading={isLoading}/>}
             <Header/>
             <div className="bg-neutral-900 py-24 sm:py-32">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8">
