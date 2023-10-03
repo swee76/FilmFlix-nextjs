@@ -5,12 +5,16 @@ import Link from "next/link";
 import Image from "next/image";
 import {useAppDispatch, useAppSelector} from "../hooks";
 import {login, logout} from "../features/userSlice";
+import {child, get} from "firebase/database";
+import {ref as databaseRef} from "@firebase/database";
+import {FirebaseAuth, FirebaseDatabase} from "../../firebase";
+import {User} from "../interfaces/user";
 
 const navigation = [
-    {name: 'Movie Uploader', href: '/movie-uploader'},
-    {name: 'Popular Movie Updater', href: '/popular-movie-updater'},
-    {name: 'User Page', href: '/user-page'},
-    {name: 'Browse', href: '/browse'},
+    {name: 'Movie Uploader', href: '/movie-uploader', allowedRoles: ['admin']},
+    {name: 'Popular Movie Updater', href: '/popular-movie-updater', allowedRoles: ['admin']},
+    {name: 'User Page', href: '/user-page', allowedRoles: ['admin']},
+    {name: 'Browse', href: '/browse', allowedRoles: ['admin','subscriber']},
 ]
 
 const Header = () => {
@@ -18,6 +22,7 @@ const Header = () => {
     const user = useAppSelector(state => state.user);
 
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const [currentUser, setCurrentUser] = useState<User | null>(null)
 
     useEffect(() => {
         const loggedUser = localStorage.getItem('email')
@@ -25,6 +30,33 @@ const Header = () => {
             dispatch(login())
         }
     }, [])
+
+    useEffect(() => {
+        checkUserRoles()
+    }, [currentUser]);
+
+    const checkUserRoles = () => {
+        const userEmail = FirebaseAuth.currentUser?.email
+
+        get(child(databaseRef(FirebaseDatabase), `users/${userEmail?.split('@')[0]}`))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    setCurrentUser(snapshot.val())
+                } else {
+                    console.log('No data available')
+                }
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+    }
+
+    const allowedNavigationLinks = navigation.filter((item) => {
+        if (user.isLoggedIn) {
+            return item.allowedRoles.includes(currentUser?.role);
+        }
+        return false; // Show the link if the user is not logged in
+    });
 
     const handleSignOut = () => {
         dispatch(logout())
@@ -50,7 +82,7 @@ const Header = () => {
                     </button>
                 </div>
                 <div className="hidden lg:flex lg:gap-x-12 items-center">
-                    {navigation.map((item) => (
+                    {allowedNavigationLinks.map((item) => (
                         <Link key={item.name} href={item.href}
                               className="text-sm font-semibold leading-6 text-gray-400">
                             {item.name}
@@ -94,7 +126,7 @@ const Header = () => {
                     <div className="mt-6 flow-root">
                         <div className="-my-6 divide-y divide-gray-500/10">
                             <div className="space-y-2 py-6">
-                                {navigation.map((item) => (
+                                {allowedNavigationLinks.map((item) => (
                                     <Link
                                         key={item.name}
                                         href={item.href}

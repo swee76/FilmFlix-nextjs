@@ -1,17 +1,22 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Link from "next/link";
 import Image from "next/image";
+import {User} from "../interfaces/user";
+import {FirebaseAuth, FirebaseDatabase} from "../../firebase";
+import {child, get} from "firebase/database";
+import {ref as databaseRef} from "@firebase/database";
+import {useAppSelector} from "../hooks";
 
 const navigation = {
     movie: [
-        {name: 'Browse', href: '/browse'},
-        {name: 'Movie Uploader', href: '/movie-uploader'},
-        {name: 'Popular Movie Updater', href: '/popular-movie-updater'},
+        {name: 'Browse', href: '/browse', allowedRoles: ['admin', 'subscriber']},
+        {name: 'Movie Uploader', href: '/movie-uploader', allowedRoles: ['admin']},
+        {name: 'Popular Movie Updater', href: '/popular-movie-updater', allowedRoles: ['admin']},
     ],
     support: [
-        {name: 'Pricing', href: '/pricing'},
-        {name: 'User Page', href: '/user-page'},
-        {name: 'Login', href: '/login'},
+        {name: 'Pricing', href: '/pricing', allowedRoles: ['all']},
+        {name: 'User Page', href: '/user-page', allowedRoles: ['admin']},
+        {name: 'Login', href: '/login', allowedRoles: ['all']},
     ],
     company: [
         {name: 'About', href: '/about'},
@@ -77,6 +82,48 @@ const navigation = {
     ],
 }
 const Footer = () => {
+    const user = useAppSelector(state => state.user);
+
+    const [currentUser, setCurrentUser] = useState<User | null>(null)
+
+    useEffect(() => {
+        checkUserRoles()
+    }, [currentUser]);
+
+    const checkUserRoles = () => {
+        const userEmail = FirebaseAuth.currentUser?.email
+
+        get(child(databaseRef(FirebaseDatabase), `users/${userEmail?.split('@')[0]}`))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    setCurrentUser(snapshot.val())
+                } else {
+                    console.log('No data available')
+                }
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+    }
+
+    const allowedMovieNavigationLinks = navigation.movie.filter((item) => {
+        if (user.isLoggedIn) {
+            return item?.allowedRoles?.includes(currentUser?.role);
+        } else if (item.allowedRoles.includes('all')) {
+            return true;
+        }
+        return false; // Show the link if the user is not logged in
+    });
+
+    const allowedSupportNavigationLinks = navigation.support.filter((item) => {
+        if (user.isLoggedIn) {
+            return item?.allowedRoles?.includes(currentUser?.role);
+        } else if (item.allowedRoles.includes('all')) {
+            return true;
+        }
+        return false
+    })
+
     return (
         <footer className="bg-neutral-900" aria-labelledby="footer-heading">
             <h2 id="footer-heading" className="sr-only">
