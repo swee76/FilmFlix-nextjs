@@ -42,6 +42,7 @@ const CtaSection = () => {
                                 className="aspect-[7/5] max-w-none w-auto rounded-2xl bg-gray-50 object-cover"
                                 width={'600'}
                                 height={'1000'}
+                                priority
                             />
                         </div>
                         <div
@@ -53,6 +54,7 @@ const CtaSection = () => {
                                     className="aspect-[4/4.3] max-w-none w-auto flex-none rounded-2xl bg-gray-50 object-left-top"
                                     width={'300'}
                                     height={'6000'}
+                                    priority
                                 />
                             </div>
                             <div className="flex w-96 flex-auto justify-end lg:w-auto lg:flex-none">
@@ -62,6 +64,7 @@ const CtaSection = () => {
                                     className="aspect-[7/5] max-w-none w-auto flex-none rounded-2xl bg-gray-50 object-cover"
                                     width={'600'}
                                     height={'2000'}
+                                    priority
                                 />
                             </div>
                             <div className="hidden sm:block sm:w-0 sm:flex-auto lg:w-auto lg:flex-none">
@@ -71,6 +74,7 @@ const CtaSection = () => {
                                     className="aspect-[4/3] max-w-none w-auto rounded-2xl bg-gray-50 object-cover"
                                     width={'400'}
                                     height={'1700'}
+                                    priority
                                 />
                             </div>
                         </div>

@@ -81,7 +81,7 @@ const Register = () => {
                             password: password,
                             contactNumber: contactNumber,
                             role: UserTypes.subscriber as UserTypes,
-                        })
+                        }).then(res => console.log('Successfully registered user!'))
                     })
             })
 
