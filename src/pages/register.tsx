@@ -61,7 +61,7 @@ const Register = () => {
         e.preventDefault()
 
         const validateImageType = selectedImageFile.includes('.jpg') ||
-            selectedImageFile.includes('.png')
+            selectedImageFile.includes('.png') || selectedImageFile.includes('.jpeg')
 
         const validateContactNumber = !isNaN(+contactNumber) && contactNumber.length <= 10
 
@@ -142,6 +142,7 @@ const Register = () => {
                                 <UserCircleIcon className="h-12 w-12 text-gray-300" aria-hidden="true"/>
                                 <input
                                     type="file"
+                                    accept={'.jpg, .png, .jpeg'}
                                     onChange={handleImageFileChange}
                                     className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                                 />
