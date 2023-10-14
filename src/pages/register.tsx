@@ -3,7 +3,6 @@ import {motion} from "framer-motion";
 import {useRouter} from "next/router";
 import Header from "../components/header";
 import Footer from "../components/footer";
-import {UserCircleIcon} from '@heroicons/react/24/solid'
 import {UserTypes} from "../enums/user-types";
 import {FirebaseAuth, FirebaseDatabase, FirebaseStorage} from "../../firebase";
 import {getDownloadURL, ref as storageRef, uploadString} from "firebase/storage";
@@ -12,6 +11,7 @@ import {createUserWithEmailAndPassword} from "firebase/auth";
 import {login} from "../features/userSlice";
 import {useAppDispatch, useAppSelector} from "../hooks";
 import {clearMessage, setMessage} from "../features/notificationSlice";
+import {UserCircleIcon} from "@heroicons/react/20/solid";
 
 const Register = () => {
     const router = useRouter()
@@ -57,9 +57,7 @@ const Register = () => {
 
     }
 
-    const handleUserSignup = (e) => {
-        e.preventDefault()
-
+    const handleUserSignUp = () => {
         const validateImageType = selectedImageFile.includes('.jpg') ||
             selectedImageFile.includes('.png')
 
@@ -69,7 +67,7 @@ const Register = () => {
 
         if (validateImageType && validateContactNumber && validatePassword) {
             // Create a storage reference for the image using Firebase Storage
-            const storageReference = storageRef(FirebaseStorage, 'user_images/' + email?.split('@')[0] + selectedImageFile!);
+            const storageReference = storageRef(FirebaseStorage, `user_images/${email?.split('@')[0]}/${selectedImageFile!}`);
 
             uploadString(storageReference, fileBase64, 'data_url').then((snapshot) => {
                 getDownloadURL(storageReference)
@@ -136,7 +134,10 @@ const Register = () => {
                 </div>
 
                 <div className="mt-2 sm:mx-auto sm:w-full sm:max-w-lg">
-                    <form onSubmit={handleUserSignup}>
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        handleUserSignUp()
+                    }}>
                         <div>
                             <div className="mt-2 flex items-center gap-x-3">
                                 <UserCircleIcon className="h-12 w-12 text-gray-300" aria-hidden="true"/>
@@ -269,7 +270,8 @@ const Register = () => {
             </motion.div>
             <Footer/>
         </div>
-    );
+    )
+        ;
 };
 
 export default Register;

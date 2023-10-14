@@ -4,8 +4,9 @@ import Footer from "../components/footer";
 import {EllipsisVerticalIcon, EnvelopeIcon, PhoneIcon} from '@heroicons/react/20/solid'
 import {Menu, Transition} from '@headlessui/react'
 import Link from "next/link";
-import {onValue, ref as databaseRef} from 'firebase/database'
-import {FirebaseDatabase} from "../../firebase";
+import {get as dbGet, onValue, query, ref as databaseRef, remove as dbRemove} from 'firebase/database'
+import {FirebaseDatabase, FirebaseStorage} from "../../firebase";
+import {deleteObject, ref as storageRef} from "firebase/storage";
 import Image from "next/image";
 import Spinner from "../components/spinner";
 
@@ -40,6 +41,76 @@ const UserPage = () => {
             setIsLoading(false)
         }
     }, [userData]);
+
+    const handleRemoveUser = async (email: string) => {
+        const uniqueUserId = email.split('@')[0];
+
+        console.log('uniqueUserId: ', uniqueUserId)
+
+        try {
+            // Remove subscribedPlans
+            await dbRemove(databaseRef(FirebaseDatabase, `subscribedPlans/${uniqueUserId}`));
+            console.log('subs plans uni: ', uniqueUserId)
+            // Query movies uploaded by the user
+            const moviesQuery = query(databaseRef(FirebaseDatabase, 'movies'))
+            console.log('moviesQuery: ', moviesQuery)
+
+            const moviesSnapshot = await dbGet(moviesQuery);
+
+            console.log('movies snapshot: ', moviesSnapshot)
+
+            const movies = []
+
+
+            moviesSnapshot.forEach((movie) => {
+                const uploadedUser = movie.val().uploadedUser
+
+                if (uploadedUser === email) {
+                    movies.push(movie.val())
+                }
+            })
+
+            if (movies.length) {
+                const deletionPromises = [];
+
+                movies.forEach((movie) => {
+                    const movieKey = movie.key;
+                    console.log(movieKey)
+
+                    // Remove the movie from Firebase Storage
+                    const movieCoverPhotoPath = `movie-cover-photos/${movieKey}`;
+                    const moviePath = `movies/${movieKey}`;
+
+                    deletionPromises.push(deleteObject(storageRef(FirebaseStorage, movieCoverPhotoPath)));
+                    deletionPromises.push(deleteObject(storageRef(FirebaseStorage, moviePath)));
+
+                    // Remove the movie from the database
+                    deletionPromises.push(dbRemove(databaseRef(FirebaseDatabase, `movies/${movieKey}`)));
+
+                    console.log(`Movie removed: ${movie.val().movieName}`);
+                });
+
+                // Wait for all deletion operations to complete
+                await Promise.all(deletionPromises);
+            }
+
+            // Remove user images from Firebase Storage
+            const userImagesPath = `user_images/${uniqueUserId}`;
+            await deleteObject(storageRef(FirebaseStorage, userImagesPath));
+
+            console.log(`User data removed for email: ${email}`);
+
+            // Clear the old user data
+            setUserData([]);
+
+            // Fetch the updated user data
+            fetchData();
+
+        } catch
+            (error) {
+            console.error("Error removing user data:", error);
+        }
+    }
 
     return (
         <div>
@@ -88,7 +159,7 @@ const UserPage = () => {
                                                                             type="button"
                                                                             className={classNames(
                                                                                 active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                                                                                'block px-4 py-2 text-sm'
+                                                                                'block px-4 py-2 text-sm w-full text-left'
                                                                             )}
                                                                         >
                                                                             Remove Admin Privileges
@@ -101,7 +172,7 @@ const UserPage = () => {
                                                                             type="button"
                                                                             className={classNames(
                                                                                 active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                                                                                'block px-4 py-2 text-sm'
+                                                                                'block px-4 py-2 text-sm w-full text-left'
                                                                             )}
                                                                         >
                                                                             Grant Admin Privileges
@@ -112,9 +183,10 @@ const UserPage = () => {
                                                                     {({active}) => (
                                                                         <button
                                                                             type="button"
+                                                                            onClick={() => handleRemoveUser(person.email)}
                                                                             className={classNames(
                                                                                 active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                                                                                'block px-4 py-2 text-sm'
+                                                                                'block px-4 py-2 text-sm w-full text-left'
                                                                             )}
                                                                         >
                                                                             Remove User
@@ -138,9 +210,10 @@ const UserPage = () => {
                                                         </div>
                                                         <p className="mt-3 truncate text-xs text-gray-800">{person.email}</p>
                                                     </div>
-                                                    <Image className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300"
-                                                           src={person.userImage}
-                                                           alt={`${person.username} image`} width={100} height={100}/>
+                                                    <Image
+                                                        className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300"
+                                                        src={person.userImage}
+                                                        alt={`${person.username} image`} width={100} height={100}/>
                                                 </div>
                                             </div>
                                             <div>
