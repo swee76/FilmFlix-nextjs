@@ -4,18 +4,19 @@ export const userSlice = createSlice({
     name: 'user',
     initialState: {
         isLoggedIn: false,
+        email: null,
     },
     reducers: {
-        login: (state) => {
+        login: (state, action) => {
+            const email = action.payload;
+
             state.isLoggedIn = true;
-            const loggedInEmail = localStorage.getItem('email')
-            if (loggedInEmail) {
-                state.isLoggedIn = true
-            }
+            state.email = email;
+
         },
         logout: (state) => {
             state.isLoggedIn = false;
-            localStorage.removeItem('email')
+            state.email = null;
         },
     }
 });
