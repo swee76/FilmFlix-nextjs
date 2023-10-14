@@ -32,7 +32,7 @@ const Header = () => {
         {name: 'Browse', href: '/browse', allowedRoles: ['admin', 'subscriber']},
     ]
 
-    const [navigation, setNavigation] = useState(navigationX)
+    const [navigation, setNavigation] = useState([])
 
 
     useEffect(() => {
@@ -41,21 +41,29 @@ const Header = () => {
         } else {
             setNavigation([])
         }
-    }, [currentUser, user.isLoggedIn]);
+    }, [currentUser, user]);
 
     const checkUserRoles = () => {
         const userEmail = user.email
-        const userType = user.role
 
+        get(child(databaseRef(FirebaseDatabase), `users/${userEmail?.split('@')[0]}`))
+            .then(async (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val()
+                    const userType = data.role
 
-        const allowedNavigationLinks = navigation.filter((item) => {
-            if (user.isLoggedIn) {
-                return item.allowedRoles.includes(userType);
-            }
-            return false; // Show the link if the user is not logged in
-        });
+                    const allowedNavigationLinks = navigationX.filter((item) => {
+                        if (user.isLoggedIn) {
+                            if (item.allowedRoles.includes(userType)) {
+                                return true
+                            }
+                        }
+                        return false; // Show the link if the user is not logged in
+                    });
 
-        setNavigation(allowedNavigationLinks)
+                    setNavigation(allowedNavigationLinks)
+                }
+            })
     }
 
 

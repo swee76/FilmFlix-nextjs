@@ -3,6 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import {useAppSelector} from "../hooks";
 import {UserTypes} from "../enums/user-types";
+import {child, get} from "firebase/database";
+import {ref as databaseRef} from "@firebase/database";
+import {FirebaseDatabase} from "../../firebase";
 
 const CtaSection = () => {
     const user = useAppSelector(state => state.user)
@@ -14,9 +17,25 @@ const CtaSection = () => {
     useEffect(() => {
         if (user.isLoggedIn) {
             setIsLogged(true)
-            setUserRole(user.role)
+            checkUserRoles()
         }
-    }, []);
+    }, [user]);
+
+
+    const checkUserRoles = () => {
+        const userEmail = user.email
+
+        get(child(databaseRef(FirebaseDatabase), `users/${userEmail?.split('@')[0]}`))
+            .then(async (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val()
+                    const userType = data.role
+
+                    setUserRole(userType.toLowerCase())
+
+                }
+            })
+    }
 
 
     return (
@@ -43,7 +62,7 @@ const CtaSection = () => {
 
                         <div className="mt-10 flex">
                             {user.isLoggedIn ? <>
-                                {user.role === UserTypes.customer ? <>
+                                {userRole === UserTypes.customer ? <>
                                     <Link
                                         href="/pricing"
                                         className="solid-primary-button rounded-md px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
