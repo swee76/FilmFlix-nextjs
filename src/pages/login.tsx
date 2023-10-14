@@ -24,9 +24,7 @@ const Login = () => {
         visible
     };
 
-    const handleUserSignIn = (e) => {
-        e.preventDefault();
-
+    const handleUserSignIn = () => {
         signInWithEmailAndPassword(FirebaseAuth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
@@ -63,7 +61,10 @@ const Login = () => {
                 </div>
 
                 <div className="mt-2 sm:mx-auto sm:w-full sm:max-w-lg">
-                    <form onSubmit={handleUserSignIn}>
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        handleUserSignIn()
+                    }}>
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-400">
                                 Email address
@@ -126,7 +127,8 @@ const Login = () => {
             </motion.div>
             <Footer/>
         </div>
-    );
+    )
+        ;
 };
 
 export default Login;
