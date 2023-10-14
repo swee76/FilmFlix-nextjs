@@ -4,7 +4,7 @@ import Footer from "../components/footer";
 import {EllipsisVerticalIcon, EnvelopeIcon, PhoneIcon} from '@heroicons/react/20/solid'
 import {Menu, Transition} from '@headlessui/react'
 import Link from "next/link";
-import {get as dbGet, onValue, query, ref as databaseRef, remove as dbRemove, set} from 'firebase/database'
+import {child, get, get as dbGet, onValue, query, ref as databaseRef, remove as dbRemove, set} from 'firebase/database'
 import {FirebaseDatabase, FirebaseStorage} from "../../firebase";
 import {deleteObject, ref as storageRef} from "firebase/storage";
 import Image from "next/image";
@@ -86,6 +86,50 @@ const UserPage = () => {
         setUserData(filteredUsers)
 
     }
+
+    const grantAdminPrivileges = async (email: string) => {
+        const uniqueUserId = email.split('@')[0];
+
+        console.log(uniqueUserId)
+
+        const userRef = databaseRef(FirebaseDatabase, `users/${uniqueUserId}`)
+
+        get(child(databaseRef(FirebaseDatabase), `users/${uniqueUserId}`))
+            .then(async (snapshot) => {
+
+                if (snapshot.exists()) {
+                    const data = snapshot.val()
+
+
+                    set(userRef, {
+                        ...data,
+                        role: 'admin'
+                    })
+                        .then(() => {
+                            toast.success('User granted admin privileges successfully', {
+                                position: "top-right",
+                                autoClose: 5000,
+                                hideProgressBar: true,
+                            })
+                        })
+                        .catch((error) => {
+                            toast.error(error.message, {
+                                position: "top-right",
+                                autoClose: 5000,
+                                hideProgressBar: true,
+                            })
+                        })
+
+                }
+            })
+
+        const usersArray = [...userData]
+        const filteredUsers = usersArray.filter((user) => user.email !== email)
+
+        setUserData(filteredUsers)
+
+    }
+
     return (
         <div>
             {isLoading && <Spinner isLoading={isLoading}/>}
@@ -144,6 +188,7 @@ const UserPage = () => {
                                                                     <Menu.Item>
                                                                         {({active}) => (
                                                                             <button
+                                                                                onClick={() => grantAdminPrivileges(person.email)}
                                                                                 type="button"
                                                                                 className={classNames(
                                                                                     active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
