@@ -1,12 +1,14 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import {RadioGroup} from '@headlessui/react'
 import {CheckIcon} from '@heroicons/react/20/solid'
 import Header from "../components/header";
 import Footer from "../components/footer";
-import {ref as databaseRef, set} from 'firebase/database'
+import {child, get, ref as databaseRef, set} from 'firebase/database'
 import {FirebaseAuth, FirebaseDatabase} from "../../firebase";
-import {clearMessage, setMessage} from "../features/notificationSlice";
 import {useAppDispatch, useAppSelector} from "../hooks";
+import {toast} from "react-toastify";
+import {UserTypes} from "../enums/user-types";
+import {login} from "../features/userSlice";
 
 const frequencies = [
     {value: 'monthly', label: 'Monthly', priceSuffix: '/month'},
@@ -45,6 +47,7 @@ function classNames(...classes: any[]) {
 }
 
 const Pricing = () => {
+    const user = useAppSelector(state => state.user)
     const dispatch = useAppDispatch()
 
     const [frequency, setFrequency] = useState(frequencies[0])
@@ -54,23 +57,89 @@ const Pricing = () => {
         setFrequency(newFrequency)
     }
 
-    const savePlan = () => {
-        const user = FirebaseAuth.currentUser;
-        set(databaseRef(FirebaseDatabase, `subscribedPlans/${user.email?.split('@')[0]}/`), {
-            email: user.email,
-            subscribedFrequency: frequency,
-            subscribedTier: selectedTier
-        }).then((result) => {
-            dispatch(setMessage({
-                message: `Successfully saved ${selectedTier.name} plan!`,
-                isError: false,
-                isOpen: true
-            }))
-        }).catch((error) => {
-            dispatch(setMessage({message: 'Failed to save plan!', isError: true, isOpen: true}))
-        }).finally(() => {
-            dispatch(clearMessage())
-        })
+    const [currentPlanFrequency, setCurrentPlanFrequency] = useState('')
+    const [currentPlanTier, setCurrentPlanTier] = useState('')
+
+    const getSubscribedPlan = () => {
+        get(child(databaseRef(FirebaseDatabase), `subscribedPlans/${user.email.split('@')[0]}/`))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    setCurrentPlanFrequency(snapshot.val().subscribedFrequency)
+                    setCurrentPlanTier(snapshot.val().subscribedTier)
+
+                } else {
+                    console.log('No data available')
+                }
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+
+    }
+
+    useEffect(() => {
+        if (user.email) {
+            getSubscribedPlan()
+        }
+    }, []);
+
+    useEffect(() => {
+        if (currentPlanFrequency && currentPlanTier) {
+            const currentFrequency = frequencies.find((frequency) => frequency.value === currentPlanFrequency)
+            const currentTier = tiers.find((tier) => tier.name.toLowerCase() === currentPlanTier)
+
+            setFrequency(currentFrequency)
+            setSelectedTier(currentTier)
+
+        }
+    }, [currentPlanFrequency, currentPlanTier]);
+
+    const savePlan = (tier, frequency) => {
+        get(child(databaseRef(FirebaseDatabase), `users/${user.email.split('@')[0]}/`))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const changingUser = snapshot.val()
+
+                    set(databaseRef(FirebaseDatabase, `users/${user.email.split('@')[0]}/`), {
+                        ...changingUser,
+                        role: UserTypes.subscriber
+                    }).then((result) => {
+                        set(databaseRef(FirebaseDatabase, `subscribedPlans/${user.email.split('@')[0]}/`), {
+                            email: user.email,
+                            subscribedFrequency: frequency.value.toLowerCase(),
+                            subscribedTier: tier.name.toLowerCase()
+                        }).then((result) => {
+                            getSubscribedPlan()
+
+                            dispatch(login({
+                                ...user,
+                                role: UserTypes.subscriber
+                            }))
+
+                            toast.success('Plan saved successfully', {
+                                position: "top-right",
+                                autoClose: 5000,
+                                hideProgressBar: true,
+                            })
+                        }).catch((error) => {
+                            toast.error(error.message, {
+                                position: "top-right",
+                                autoClose: 5000,
+                                hideProgressBar: true,
+                            })
+                        })
+
+                    })
+
+                } else {
+                    console.log('No data available')
+                }
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+
+
     }
 
     return (
@@ -119,6 +188,7 @@ const Pricing = () => {
                                     checked ? 'bg-white/5 ring-2 ring-red-800' : 'ring-1 ring-white/10',
                                     'rounded-3xl p-8 xl:p-10'
                                 )}
+                                // onClick={() => setSelectedTier(tier)}
                             >
                                 <div className="flex items-center justify-between gap-x-4">
                                     <h3 id={tier.id} className="text-lg font-semibold leading-8 text-white">
@@ -139,7 +209,10 @@ const Pricing = () => {
                                 </p>
                                 <button
                                     type="button"
-                                    onClick={savePlan}
+                                    onClick={() => {
+                                        setSelectedTier(tier)
+                                        savePlan(tier, frequency)
+                                    }}
                                     aria-describedby={tier.id}
                                     className={classNames(
                                         tier.mostPopular
@@ -148,7 +221,7 @@ const Pricing = () => {
                                         'mt-6 w-full block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2'
                                     )}
                                 >
-                                    Buy plan
+                                    {tier.name.toLowerCase() === currentPlanTier.toLowerCase() && currentPlanFrequency.toLowerCase() === frequency.value.toLowerCase() ? 'Current Plan' : 'Subscribe'}
                                 </button>
                                 <ul role="list" className="mt-8 space-y-3 text-sm leading-6 text-gray-300 xl:mt-10">
                                     {tier.features.map((feature) => (

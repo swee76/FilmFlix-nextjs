@@ -16,7 +16,6 @@ import {toast} from "react-toastify";
 const Register = () => {
     const router = useRouter()
     const dispatch = useAppDispatch()
-    const notification = useAppSelector(state => state.notification);
 
     const [selectedImageFile, setSelectedImageFile] = useState(null)
     const [username, setUsername] = useState('')
@@ -118,8 +117,6 @@ const Register = () => {
         }
 
         const storageReference = storageRef(FirebaseStorage, `user_images/${email?.split('@')[0]}/profile_image.${extension}`);
-
-
 
 
         setLoading(true)

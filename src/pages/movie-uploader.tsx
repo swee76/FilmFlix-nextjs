@@ -140,8 +140,8 @@ const MovieUploader = () => {
                         <div className="text-center">
                             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl"><span
                                 className="gradient-text">
-        Film Submission Center
-    </span></h2>
+                                Film Submission Center
+                            </span></h2>
                             <h6 className="text-gray-600">-Upload Your Masterpiece-</h6>
                         </div>
                         <div className="flex flex-col lg:flex-row-reverse gap-9 items-start">
