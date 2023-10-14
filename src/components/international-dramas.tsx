@@ -97,6 +97,8 @@ const InternationalDramas = () => {
                         </div>
                     </div>
                 ))}
+                {internationalDramas.length === 0 &&
+                    <p className="text-gray-500 text-lg text-center">No International Dramas Available</p>}
             </div>
         </div>
     );

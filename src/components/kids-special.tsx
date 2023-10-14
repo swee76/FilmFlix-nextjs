@@ -60,6 +60,8 @@ const KidsSpecial = () => {
                         </div>
                     </div>
                 ))}
+                {kidsSpecial.length === 0 &&
+                    <p className="text-gray-500 text-lg text-center">No Kids Special Movies Available</p>}
             </div>
         </div>
     );

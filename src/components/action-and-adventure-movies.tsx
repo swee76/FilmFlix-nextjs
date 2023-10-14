@@ -63,6 +63,9 @@ const ActionAndAdventureMovies = () => {
                         </div>
                     </div>
                 ))}
+                {actionAndAdventureMovies.length === 0 &&
+                    <p className="text-lg text-gray-500 text-center">No Action & Adventure Movies Available
+                    </p>}
             </div>
         </div>
     );

@@ -39,7 +39,7 @@ const HorrorMovies = () => {
                 {horrorMovies.map((movie) => (
                     <div key={movie.movieId} className="relative scrollbar-item shadow shadow-white rounded-lg">
                         <div onClick={() => router.push(`/movie/${movie.movieId}`)}
-                            className="group aspect-h-7 aspect-w-10 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-red-900 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+                             className="group aspect-h-7 aspect-w-10 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-red-900 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
                             <Image src={movie.movieCoverPhoto} alt={`${movie.movieName} Banner`}
                                    className="pointer-events-none object-cover group-hover:opacity-75" width={800}
                                    height={200}/>
@@ -60,6 +60,8 @@ const HorrorMovies = () => {
                         </div>
                     </div>
                 ))}
+                {horrorMovies.length === 0 &&
+                    <p className="text-gray-500 text-lg text-center">No Horror Movies Available</p>}
             </div>
         </div>
     );
