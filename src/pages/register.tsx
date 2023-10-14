@@ -6,12 +6,12 @@ import Footer from "../components/footer";
 import {UserTypes} from "../enums/user-types";
 import {FirebaseAuth, FirebaseDatabase, FirebaseStorage} from "../../firebase";
 import {getDownloadURL, ref as storageRef, uploadString} from "firebase/storage";
-import {ref as databaseRef, set} from 'firebase/database'
+import {ref as databaseRef, set } from 'firebase/database'
 import {createUserWithEmailAndPassword} from "firebase/auth";
 import {login} from "../features/userSlice";
 import {useAppDispatch, useAppSelector} from "../hooks";
-import {clearMessage, setMessage} from "../features/notificationSlice";
 import {UserCircleIcon} from "@heroicons/react/20/solid";
+import {toast} from "react-toastify";
 
 const Register = () => {
     const router = useRouter()
@@ -57,69 +57,138 @@ const Register = () => {
 
     }
 
+    const [loading, setLoading] = useState(false)
+
     const handleUserSignUp = () => {
-        const validateImageType = selectedImageFile.includes('.jpg') ||
-            selectedImageFile.includes('.png')
-
-        const validateContactNumber = !isNaN(+contactNumber) && contactNumber.length <= 10
-
-        const validatePassword = !password.includes(' ') && !password.includes('.')
-
-        if (validateImageType && validateContactNumber && validatePassword) {
-            // Create a storage reference for the image using Firebase Storage
-            const storageReference = storageRef(FirebaseStorage, `user_images/${email?.split('@')[0]}/${selectedImageFile!}`);
-
-            uploadString(storageReference, fileBase64, 'data_url').then((snapshot) => {
-                getDownloadURL(storageReference)
-                    .then((url) => {
-                        set(databaseRef(FirebaseDatabase, `users/${email?.split('@')[0]}/`), {
-                            userImage: url,
-                            username: username,
-                            email: email,
-                            password: password,
-                            contactNumber: contactNumber,
-                            role: UserTypes.subscriber as UserTypes,
-                        }).then(res => console.log('Successfully registered user!'))
-                    })
+        if (!selectedImageFile) {
+            toast.error('Please select an image!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: true,
             })
 
-            createUserWithEmailAndPassword(FirebaseAuth, email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    dispatch(login())
-                    localStorage.setItem('email', email)
-                    router.push('/').then(r => dispatch(setMessage({
-                        message: 'Successfully created user!',
-                        isError: false,
-                        isOpen: true
-                    })))
-                })
-                .catch((error) => {
+            return
+        }
+
+        const validateImageType = selectedImageFile.includes('.jpg') ||
+            selectedImageFile.includes('.png') || selectedImageFile.includes('.jpeg')
+
+
+        if (!validateImageType) {
+            toast.error('Image type is not valid!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: true,
+            })
+
+            return
+        }
+
+        const extension = selectedImageFile.split('.')[1]
+
+
+        if (isNaN(+contactNumber) || contactNumber.includes('.') || contactNumber.includes(' ')) {
+            toast.error('Contact Number should be a number!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: true,
+            })
+
+            return
+        }
+
+        if (contactNumber.trim().length !== 10) {
+            toast.error('Contact Number should be a number & limited to 10 digits!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: true,
+            })
+
+            return
+        }
+
+        if (password.trim().length < 6) {
+            toast.error('Password should be at least 6 characters!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: true,
+            })
+
+            return
+        }
+
+        const storageReference = storageRef(FirebaseStorage, `user_images/${email?.split('@')[0]}/profile_image.${extension}`);
+
+
+
+
+        setLoading(true)
+        createUserWithEmailAndPassword(FirebaseAuth, email, password)
+            .then(async userCredential => {
+                const user = userCredential.user;
+                uploadString(storageReference, fileBase64, 'data_url').then((snapshot) => {
+                    getDownloadURL(storageReference)
+                        .then((url) => {
+                            set(databaseRef(FirebaseDatabase, `users/${email?.split('@')[0]}/`), {
+                                userImage: url,
+                                username: username,
+                                email: email,
+                                // password: password,
+                                contactNumber: contactNumber,
+                                role: UserTypes.customer as UserTypes,
+                            }).then(async res => {
+                                toast.success('Successfully registered user!', {
+                                    position: "top-right",
+                                    autoClose: 5000,
+                                    hideProgressBar: true,
+                                })
+
+                                dispatch(login({
+                                    email: email,
+                                    role: UserTypes.customer,
+                                }))
+
+                                setLoading(false)
+                                await router.push('/')
+                            })
+                        })
+                        .catch(error => {
+                            const errorCode = error.code;
+                            const errorMessage = error.message;
+
+                            toast.error(errorMessage, {
+                                position: "top-right",
+                                autoClose: 5000,
+                                hideProgressBar: true,
+                            })
+                            setLoading(false)
+                            return
+                        })
+                }).catch(error => {
                     const errorCode = error.code;
                     const errorMessage = error.message;
-                    dispatch(setMessage({message: errorMessage, isError: true, isOpen: true}))
-                }).finally(() => {
-                dispatch(clearMessage())
-            })
-        } else {
-            if (!validateImageType) {
-                dispatch(setMessage({message: 'Image type is not valid!', isError: true, isOpen: true}))
-            } else if (!validatePassword) {
-                dispatch(setMessage({
-                    message: 'Password cannot contain spaces or periods!',
-                    isError: true,
-                    isOpen: true
-                }))
-            } else if (!validateContactNumber) {
-                dispatch(setMessage({
-                    message: 'Contact Number should be a number & limited to 10 digits!',
-                    isError: true,
-                    isOpen: true
-                }))
-            }
 
-            dispatch(clearMessage())
-        }
+                    toast.error(errorMessage, {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                    })
+                    setLoading(false)
+                    return
+                })
+            })
+            .catch(error => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+
+                toast.error(errorMessage, {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                })
+                setLoading(false)
+                return
+            })
     }
 
     return (
@@ -143,6 +212,7 @@ const Register = () => {
                                 <UserCircleIcon className="h-12 w-12 text-gray-300" aria-hidden="true"/>
                                 <input
                                     type="file"
+                                    accept={'.jpg, .png, .jpeg'}
                                     onChange={handleImageFileChange}
                                     className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                                 />
@@ -252,7 +322,7 @@ const Register = () => {
                                 disabled={!hasAcceptedAgreements}
                                 className="flex w-full justify-center rounded-3xl bg-red-900 border border-gray-400 px-4 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800 disabled:bg-neutral-500"
                             >
-                                Sign up
+                                {loading ? 'Loading...' : 'Sign up'}
                             </button>
                             <button
                                 type="button"

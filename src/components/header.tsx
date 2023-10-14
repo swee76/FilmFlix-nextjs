@@ -10,12 +10,6 @@ import {ref as databaseRef} from "@firebase/database";
 import {FirebaseAuth, FirebaseDatabase} from "../../firebase";
 import {User} from "../interfaces/user";
 
-const navigation = [
-    {name: 'Movie Uploader', href: '/movie-uploader', allowedRoles: ['admin']},
-    {name: 'Popular Movie Updater', href: '/popular-movie-updater', allowedRoles: ['admin']},
-    {name: 'User Page', href: '/user-page', allowedRoles: ['admin']},
-    {name: 'Browse', href: '/browse', allowedRoles: ['admin','subscriber']},
-]
 
 const Header = () => {
     const dispatch = useAppDispatch()
@@ -24,39 +18,46 @@ const Header = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [currentUser, setCurrentUser] = useState<User | null>(null)
 
-    useEffect(() => {
-        const loggedUser = localStorage.getItem('email')
-        if (loggedUser) {
-            dispatch(login())
-        }
-    }, [])
+    // useEffect(() => {
+    //     const loggedUser = localStorage.getItem('email')
+    //     if (loggedUser) {
+    //         dispatch(login())
+    //     }
+    // }, [])
+
+    const navigationX = [
+        {name: 'Movie Uploader', href: '/movie-uploader', allowedRoles: ['admin']},
+        {name: 'Popular Movie Updater', href: '/popular-movie-updater', allowedRoles: ['admin']},
+        {name: 'User Page', href: '/user-page', allowedRoles: ['admin']},
+        {name: 'Browse', href: '/browse', allowedRoles: ['admin', 'subscriber']},
+    ]
+
+    const [navigation, setNavigation] = useState(navigationX)
+
 
     useEffect(() => {
-        checkUserRoles()
-    }, [currentUser]);
+        if (user.isLoggedIn) {
+            checkUserRoles()
+        } else {
+            setNavigation([])
+        }
+    }, [currentUser, user.isLoggedIn]);
 
     const checkUserRoles = () => {
-        const userEmail = FirebaseAuth.currentUser?.email
+        const userEmail = user.email
+        const userType = user.role
 
-        get(child(databaseRef(FirebaseDatabase), `users/${userEmail?.split('@')[0]}`))
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    setCurrentUser(snapshot.val())
-                } else {
-                    console.log('No data available')
-                }
-            })
-            .catch((error) => {
-                console.error(error)
-            })
+
+        const allowedNavigationLinks = navigation.filter((item) => {
+            if (user.isLoggedIn) {
+                return item.allowedRoles.includes(userType);
+            }
+            return false; // Show the link if the user is not logged in
+        });
+
+        setNavigation(allowedNavigationLinks)
     }
 
-    const allowedNavigationLinks = navigation.filter((item) => {
-        if (user.isLoggedIn) {
-            return item.allowedRoles.includes(currentUser?.role);
-        }
-        return false; // Show the link if the user is not logged in
-    });
 
     const handleSignOut = () => {
         dispatch(logout())
@@ -82,7 +83,7 @@ const Header = () => {
                     </button>
                 </div>
                 <div className="hidden lg:flex lg:gap-x-12 items-center">
-                    {allowedNavigationLinks.map((item) => (
+                    {navigation.map((item) => (
                         <Link key={item.name} href={item.href}
                               className="text-sm font-semibold leading-6 text-gray-400">
                             {item.name}
@@ -126,7 +127,7 @@ const Header = () => {
                     <div className="mt-6 flow-root">
                         <div className="-my-6 divide-y divide-gray-500/10">
                             <div className="space-y-2 py-6">
-                                {allowedNavigationLinks.map((item) => (
+                                {navigation.map((item) => (
                                     <Link
                                         key={item.name}
                                         href={item.href}

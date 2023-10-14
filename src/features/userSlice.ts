@@ -1,21 +1,27 @@
 import {createSlice} from '@reduxjs/toolkit'
+import {UserTypes} from "../enums/user-types";
 
 export const userSlice = createSlice({
     name: 'user',
     initialState: {
         isLoggedIn: false,
+        email: null,
+        role: UserTypes.guest,
     },
     reducers: {
-        login: (state) => {
+        login: (state, action) => {
+            const email = action.payload.email;
+            const userType = action.payload.role as UserTypes
+
             state.isLoggedIn = true;
-            const loggedInEmail = localStorage.getItem('email')
-            if (loggedInEmail) {
-                state.isLoggedIn = true
-            }
+            state.email = email;
+            state.role = userType;
+
         },
         logout: (state) => {
             state.isLoggedIn = false;
-            localStorage.removeItem('email')
+            state.email = null;
+            state.role = UserTypes.guest;
         },
     }
 });
