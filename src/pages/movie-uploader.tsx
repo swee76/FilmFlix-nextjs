@@ -10,6 +10,7 @@ import {set} from "firebase/database";
 import {ref as databaseRef} from "@firebase/database";
 import Spinner from "../components/spinner";
 import {useAppSelector} from "../hooks";
+import {toast} from "react-toastify";
 
 const MovieUploader = () => {
     const user = useAppSelector(state => state.user)
@@ -87,7 +88,6 @@ const MovieUploader = () => {
     }
 
     const handleMovieUploader = async () => {
-
         setIsLoading(true)
 
         const validateMovieName = movieName.length < 70
@@ -121,8 +121,19 @@ const MovieUploader = () => {
                     videoCategory: videoCategory,
                     uploadedUser: user.email.trim().split('@')[0]
                 })
+            } else {
+                toast.error('Please select a Image/Video!', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                })
             }
         }
+        toast.success('Successfully Uploaded!', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: true,
+        })
         resetFields()
         setIsLoading(false)
     }
