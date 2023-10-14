@@ -1,8 +1,24 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Link from "next/link";
 import Image from "next/image";
+import {useAppSelector} from "../hooks";
+import {UserTypes} from "../enums/user-types";
 
 const CtaSection = () => {
+    const user = useAppSelector(state => state.user)
+
+    const [isLogged, setIsLogged] = useState(false)
+    const [userRole, setUserRole] = useState(UserTypes.customer)
+
+
+    useEffect(() => {
+        if (user.isLoggedIn) {
+            setIsLogged(true)
+            setUserRole(user.role)
+        }
+    }, []);
+
+
     return (
         <div className="overflow-hidden py-24 bg-transparent">
             <div className="mx-auto max-w-7xl px-6 lg:flex lg:px-8">
@@ -26,12 +42,31 @@ const CtaSection = () => {
                         </p>
 
                         <div className="mt-10 flex">
-                            <Link
-                                href="/login"
-                                className="solid-primary-button rounded-md px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-                            >
-                                Join our team <span aria-hidden="true">&rarr;</span>
-                            </Link>
+                            {user.isLoggedIn ? <>
+                                {user.role === UserTypes.customer ? <>
+                                    <Link
+                                        href="/pricing"
+                                        className="solid-primary-button rounded-md px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                                    >
+                                        Subscribe to a Plan <span aria-hidden="true">&rarr;</span>
+                                    </Link>
+                                </> : <>
+                                    <Link
+                                        href="/browse"
+                                        className="solid-primary-button rounded-md px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                                    >
+                                        Browse <span aria-hidden="true">&rarr;</span>
+                                    </Link>
+                                </>}
+                            </> : <>
+                                <Link
+                                    href="/login"
+                                    className="solid-primary-button rounded-md px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                                >
+                                    Join our team <span aria-hidden="true">&rarr;</span>
+                                </Link>
+                            </>}
+
                         </div>
                     </div>
                     <div className="flex flex-wrap items-start justify-end gap-6 sm:gap-8 lg:contents">

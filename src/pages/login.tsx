@@ -4,15 +4,17 @@ import Footer from "../components/footer";
 import {motion} from "framer-motion"
 import {useRouter} from "next/router";
 import {signInWithEmailAndPassword} from "firebase/auth";
-import {FirebaseAuth} from "../../firebase";
+import {FirebaseAuth, FirebaseDatabase} from "../../firebase";
 import {useAppDispatch, useAppSelector} from "../hooks";
 import {login} from "../features/userSlice";
 import {setMessage} from "../features/notificationSlice";
+import {child, get} from "firebase/database";
+import {ref as databaseRef} from "@firebase/database";
+import {toast} from "react-toastify";
 
 const Login = () => {
     const router = useRouter()
     const dispatch = useAppDispatch()
-    const notification = useAppSelector(state => state.notification)
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -24,28 +26,53 @@ const Login = () => {
         visible
     };
 
+    const [loading, setLoading] = useState(false)
+
     const handleUserSignIn = () => {
+        setLoading(true)
         signInWithEmailAndPassword(FirebaseAuth, email, password)
-            .then((userCredential) => {
+            .then(async (userCredential) => {
                 const user = userCredential.user;
 
-                if (user) {
-                    dispatch(login())
-                    localStorage.setItem('email', email)
+                get(child(databaseRef(FirebaseDatabase), `users/${email?.split('@')[0]}`))
+                    .then(async (snapshot) => {
+                        if (snapshot.exists()) {
+                            const data = snapshot.val()
+                            dispatch(login({
+                                email: data.email,
+                                role: data.role
+                            }))
 
+                            toast.success('Logged in successfully', {
+                                position: "top-right",
+                                autoClose: 5000,
+                                hideProgressBar: true,
+                            })
 
-                    router.push('/').then(r => dispatch(setMessage({
-                        message: 'Successfully logged user!',
-                        isError: false,
-                        isOpen: true
-                    })))
-                } else {
-                    dispatch(setMessage({message: 'Error log in user!', isError: true, isOpen: true}))
-                }
+                            setLoading(false)
+                            await router.push('/')
+                        } else {
+                            setLoading(false)
+                            toast.error('User not found', {
+                                position: "top-right",
+                                autoClose: 5000,
+                                hideProgressBar: true,
+                            })
+                        }
+                    })
+                    .catch((error) => {
+                        setLoading(false)
+                        toast.error(error.message, {
+                            position: "top-right",
+                            autoClose: 5000,
+                            hideProgressBar: true,
+                        })
+                    })
 
             })
             .catch((error) => {
-                dispatch(setMessage({message: error.message, isError: true, isOpen: true}))
+                setLoading(false)
+                toast.error(error.message)
             });
     }
 
@@ -109,10 +136,10 @@ const Login = () => {
                                 type="submit"
                                 className="flex w-full justify-center rounded-3xl bg-red-900 border border-gray-400 px-4 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
                             >
-                                Sign in
+                                {loading ? 'Loading...' : 'Sign in'}
                             </button>
                             <button
-                                type="submit"
+                                type="button"
                                 onClick={(e) => {
                                     e.preventDefault();
                                     router.push('/register')
