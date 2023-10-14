@@ -10,13 +10,11 @@ import {FirebaseDatabase} from "../../firebase";
 const CtaSection = () => {
     const user = useAppSelector(state => state.user)
 
-    const [isLogged, setIsLogged] = useState(false)
     const [userRole, setUserRole] = useState(UserTypes.customer)
 
 
     useEffect(() => {
         if (user.isLoggedIn) {
-            setIsLogged(true)
             checkUserRoles()
         }
     }, [user]);
