@@ -9,8 +9,10 @@ import {Movie} from "../interfaces/movie";
 
 const SciFiMovies = () => {
     const router = useRouter()
+
     const [dataList, setDataList] = useState<Movie[]>([])
     const [sciFiMovies, setSciFiMovies] = useState<Movie[]>([])
+
     const fetchData = () => {
         const popularFilmsRef = databaseRef(FirebaseDatabase, 'movies')
 
