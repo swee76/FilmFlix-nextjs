@@ -9,8 +9,11 @@ import {uuid} from 'uuidv4';
 import {set} from "firebase/database";
 import {ref as databaseRef} from "@firebase/database";
 import Spinner from "../components/spinner";
+import {useAppSelector} from "../hooks";
 
 const MovieUploader = () => {
+    const user = useAppSelector(state => state.user)
+
     const [isLoading, setIsLoading] = useState(false)
     const [movieName, setMovieName] = useState('')
     const [selectedImageFile, setSelectedImageFile] = useState(null)
@@ -116,7 +119,7 @@ const MovieUploader = () => {
                     movieUrl: videoUrl,
                     videoDescription: videoDescription,
                     videoCategory: videoCategory,
-                    uploadedUser: FirebaseAuth.currentUser.email
+                    uploadedUser: user.email.trim().split('@')[0]
                 })
             }
         }
