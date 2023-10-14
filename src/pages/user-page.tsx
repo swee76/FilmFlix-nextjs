@@ -4,11 +4,12 @@ import Footer from "../components/footer";
 import {EllipsisVerticalIcon, EnvelopeIcon, PhoneIcon} from '@heroicons/react/20/solid'
 import {Menu, Transition} from '@headlessui/react'
 import Link from "next/link";
-import {get as dbGet, onValue, query, ref as databaseRef, remove as dbRemove} from 'firebase/database'
+import {get as dbGet, onValue, query, ref as databaseRef, remove as dbRemove, set} from 'firebase/database'
 import {FirebaseDatabase, FirebaseStorage} from "../../firebase";
 import {deleteObject, ref as storageRef} from "firebase/storage";
 import Image from "next/image";
 import Spinner from "../components/spinner";
+import {toast} from "react-toastify";
 
 function classNames(...classes: any[]) {
     return classes.filter(Boolean).join(' ')
@@ -45,73 +46,46 @@ const UserPage = () => {
     const handleRemoveUser = async (email: string) => {
         const uniqueUserId = email.split('@')[0];
 
-        console.log('uniqueUserId: ', uniqueUserId)
+        const userRef = databaseRef(FirebaseDatabase, `users/${uniqueUserId}`)
 
-        try {
-            // Remove subscribedPlans
-            await dbRemove(databaseRef(FirebaseDatabase, `subscribedPlans/${uniqueUserId}`));
-            console.log('subs plans uni: ', uniqueUserId)
-            // Query movies uploaded by the user
-            const moviesQuery = query(databaseRef(FirebaseDatabase, 'movies'))
-            console.log('moviesQuery: ', moviesQuery)
-
-            const moviesSnapshot = await dbGet(moviesQuery);
-
-            console.log('movies snapshot: ', moviesSnapshot)
-
-            const movies = []
-
-
-            moviesSnapshot.forEach((movie) => {
-                const uploadedUser = movie.val().uploadedUser
-
-                if (uploadedUser === email) {
-                    movies.push(movie.val())
-                }
+        set(userRef, null)
+            .then(() => {
+                toast.success('User removed successfully', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                })
+            })
+            .catch((error) => {
+                toast.error(error.message, {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                })
             })
 
-            if (movies.length) {
-                const deletionPromises = [];
+        const usersArray = [...userData]
+        const filteredUsers = usersArray.filter((user) => user.email !== email)
 
-                movies.forEach((movie) => {
-                    const movieKey = movie.key;
-                    console.log(movieKey)
+        const subscriberRef = databaseRef(FirebaseDatabase, `subscribedPlans/${uniqueUserId}`)
+        set(subscriberRef, null)
+            .then(() => {
+                toast.success('Subscriber removed successfully', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                })
+            }).catch((error) => {
+            toast.error(error.message, {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: true,
+            })
+        })
 
-                    // Remove the movie from Firebase Storage
-                    const movieCoverPhotoPath = `movie-cover-photos/${movieKey}`;
-                    const moviePath = `movies/${movieKey}`;
+        setUserData(filteredUsers)
 
-                    deletionPromises.push(deleteObject(storageRef(FirebaseStorage, movieCoverPhotoPath)));
-                    deletionPromises.push(deleteObject(storageRef(FirebaseStorage, moviePath)));
-
-                    // Remove the movie from the database
-                    deletionPromises.push(dbRemove(databaseRef(FirebaseDatabase, `movies/${movieKey}`)));
-
-                    console.log(`Movie removed: ${movie.val().movieName}`);
-                });
-
-                // Wait for all deletion operations to complete
-                await Promise.all(deletionPromises);
-            }
-
-            // Remove user images from Firebase Storage
-            const userImagesPath = `user_images/${uniqueUserId}`;
-            await deleteObject(storageRef(FirebaseStorage, userImagesPath));
-
-            console.log(`User data removed for email: ${email}`);
-
-            // Clear the old user data
-            setUserData([]);
-
-            // Fetch the updated user data
-            fetchData();
-
-        } catch
-            (error) {
-            console.error("Error removing user data:", error);
-        }
     }
-
     return (
         <div>
             {isLoading && <Spinner isLoading={isLoading}/>}
@@ -131,7 +105,7 @@ const UserPage = () => {
                                              className="col-span-1 divide-y divide-gray-200 rounded-lg bg-red-100 bg-opacity-50 shadow">
                                             <div className="flex flex-col">
                                                 <Menu as="div"
-                                                      className="relative inline-block ml-auto mt-1 mr-1 text-left">
+                                                      className={`relative inline-block ml-auto mt-1 mr-1 text-left ${person.role === 'admin' && 'invisible'}`}>
                                                     <div>
                                                         <Menu.Button
                                                             className="flex items-center rounded-full bg-transparent text-red-900 hover:text-orange-900 focus:outline-none focus:ring-2 focus:ring-red-900 focus:ring-offset-2 focus:ring-offset-gray-100">
@@ -166,33 +140,35 @@ const UserPage = () => {
                                                                         </button>
                                                                     )}
                                                                 </Menu.Item>}
-                                                                {person.role === 'subscriber' && <Menu.Item>
-                                                                    {({active}) => (
-                                                                        <button
-                                                                            type="button"
-                                                                            className={classNames(
-                                                                                active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                                                                                'block px-4 py-2 text-sm w-full text-left'
-                                                                            )}
-                                                                        >
-                                                                            Grant Admin Privileges
-                                                                        </button>
-                                                                    )}
-                                                                </Menu.Item>}
-                                                                <Menu.Item>
-                                                                    {({active}) => (
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => handleRemoveUser(person.email)}
-                                                                            className={classNames(
-                                                                                active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                                                                                'block px-4 py-2 text-sm w-full text-left'
-                                                                            )}
-                                                                        >
-                                                                            Remove User
-                                                                        </button>
-                                                                    )}
-                                                                </Menu.Item>
+                                                                {(person.role === 'subscriber' || person.role === 'customer') &&
+                                                                    <Menu.Item>
+                                                                        {({active}) => (
+                                                                            <button
+                                                                                type="button"
+                                                                                className={classNames(
+                                                                                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                                                                                    'block px-4 py-2 text-sm w-full text-left'
+                                                                                )}
+                                                                            >
+                                                                                Grant Admin Privileges
+                                                                            </button>
+                                                                        )}
+                                                                    </Menu.Item>}
+                                                                {person.role !== 'admin' &&
+                                                                    <Menu.Item>
+                                                                        {({active}) => (
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => handleRemoveUser(person.email)}
+                                                                                className={classNames(
+                                                                                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                                                                                    'block px-4 py-2 text-sm w-full text-left'
+                                                                                )}
+                                                                            >
+                                                                                Remove User
+                                                                            </button>
+                                                                        )}
+                                                                    </Menu.Item>}
                                                             </div>
                                                         </Menu.Items>
                                                     </Transition>

@@ -9,21 +9,19 @@ import {child, get} from "firebase/database";
 import {ref as databaseRef} from "@firebase/database";
 import {FirebaseAuth, FirebaseDatabase} from "../../firebase";
 import {User} from "../interfaces/user";
+import {router} from "next/client";
+import {useRouter} from "next/router";
 
 
 const Header = () => {
+    const router = useRouter()
+
     const dispatch = useAppDispatch()
     const user = useAppSelector(state => state.user);
 
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [currentUser, setCurrentUser] = useState<User | null>(null)
 
-    // useEffect(() => {
-    //     const loggedUser = localStorage.getItem('email')
-    //     if (loggedUser) {
-    //         dispatch(login())
-    //     }
-    // }, [])
 
     const navigationX = [
         {name: 'Movie Uploader', href: '/movie-uploader', allowedRoles: ['admin']},
@@ -69,6 +67,7 @@ const Header = () => {
 
     const handleSignOut = () => {
         dispatch(logout())
+        router.push('/login')
     }
 
     return (
