@@ -13,6 +13,7 @@ import Spinner from "../components/spinner";
 import {uuid} from 'uuidv4';
 import {useAppDispatch} from "../hooks";
 import {setMessage} from "../features/notificationSlice";
+import {toast} from "react-toastify";
 
 const posts = [
     {
@@ -96,7 +97,13 @@ const PopularMovieUpdater = () => {
             thirdPopularFilm: selectedThirdFilm,
             popularFilmSetBy: FirebaseAuth.currentUser.email
         }).then(res => {
-            dispatch(setMessage({message: 'Successfully Uploaded!', isError: false, isOpen: true}))
+            // dispatch(setMessage({message: 'Successfully Uploaded!', isError: false, isOpen: true}))
+            //success
+            toast.success('Successfully Uploaded!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: true,
+            })
             resetFields()
         })
     }
