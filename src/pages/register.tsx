@@ -6,11 +6,10 @@ import Footer from "../components/footer";
 import {UserTypes} from "../enums/user-types";
 import {FirebaseAuth, FirebaseDatabase, FirebaseStorage} from "../../firebase";
 import {getDownloadURL, ref as storageRef, uploadString} from "firebase/storage";
-import {ref as databaseRef, set} from 'firebase/database'
+import {ref as databaseRef, set } from 'firebase/database'
 import {createUserWithEmailAndPassword} from "firebase/auth";
 import {login} from "../features/userSlice";
 import {useAppDispatch, useAppSelector} from "../hooks";
-import {clearMessage, setMessage} from "../features/notificationSlice";
 import {UserCircleIcon} from "@heroicons/react/20/solid";
 import {toast} from "react-toastify";
 
@@ -58,6 +57,8 @@ const Register = () => {
 
     }
 
+    const [loading, setLoading] = useState(false)
+
     const handleUserSignUp = () => {
         if (!selectedImageFile) {
             toast.error('Please select an image!', {
@@ -72,6 +73,7 @@ const Register = () => {
         const validateImageType = selectedImageFile.includes('.jpg') ||
             selectedImageFile.includes('.png') || selectedImageFile.includes('.jpeg')
 
+
         if (!validateImageType) {
             toast.error('Image type is not valid!', {
                 position: "top-right",
@@ -81,6 +83,8 @@ const Register = () => {
 
             return
         }
+
+        const extension = selectedImageFile.split('.')[1]
 
 
         if (isNaN(+contactNumber) || contactNumber.includes('.') || contactNumber.includes(' ')) {
@@ -113,20 +117,65 @@ const Register = () => {
             return
         }
 
-        const storageReference = storageRef(FirebaseStorage, `user_images/${email?.split('@')[0]}/${selectedImageFile!}`);
+        const storageReference = storageRef(FirebaseStorage, `user_images/${email?.split('@')[0]}/profile_image.${extension}`);
 
+
+
+
+        setLoading(true)
         createUserWithEmailAndPassword(FirebaseAuth, email, password)
             .then(async userCredential => {
                 const user = userCredential.user;
-                dispatch(login(email))
+                uploadString(storageReference, fileBase64, 'data_url').then((snapshot) => {
+                    getDownloadURL(storageReference)
+                        .then((url) => {
+                            set(databaseRef(FirebaseDatabase, `users/${email?.split('@')[0]}/`), {
+                                userImage: url,
+                                username: username,
+                                email: email,
+                                // password: password,
+                                contactNumber: contactNumber,
+                                role: UserTypes.customer as UserTypes,
+                            }).then(async res => {
+                                toast.success('Successfully registered user!', {
+                                    position: "top-right",
+                                    autoClose: 5000,
+                                    hideProgressBar: true,
+                                })
 
-                toast.success('Successfully registered user!', {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: true,
+                                dispatch(login({
+                                    email: email,
+                                    role: UserTypes.customer,
+                                }))
+
+                                setLoading(false)
+                                await router.push('/')
+                            })
+                        })
+                        .catch(error => {
+                            const errorCode = error.code;
+                            const errorMessage = error.message;
+
+                            toast.error(errorMessage, {
+                                position: "top-right",
+                                autoClose: 5000,
+                                hideProgressBar: true,
+                            })
+                            setLoading(false)
+                            return
+                        })
+                }).catch(error => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+
+                    toast.error(errorMessage, {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                    })
+                    setLoading(false)
+                    return
                 })
-
-                await router.push('/')
             })
             .catch(error => {
                 const errorCode = error.code;
@@ -137,27 +186,9 @@ const Register = () => {
                     autoClose: 5000,
                     hideProgressBar: true,
                 })
-
-
+                setLoading(false)
+                return
             })
-            .finally(() => {
-                dispatch(clearMessage())
-            })
-
-
-        uploadString(storageReference, fileBase64, 'data_url').then((snapshot) => {
-            getDownloadURL(storageReference)
-                .then((url) => {
-                    set(databaseRef(FirebaseDatabase, `users/${email?.split('@')[0]}/`), {
-                        userImage: url,
-                        username: username,
-                        email: email,
-                        // password: password,
-                        contactNumber: contactNumber,
-                        role: UserTypes.subscriber as UserTypes,
-                    }).then(res => console.log('Successfully registered user!'))
-                })
-        })
     }
 
     return (
@@ -291,7 +322,7 @@ const Register = () => {
                                 disabled={!hasAcceptedAgreements}
                                 className="flex w-full justify-center rounded-3xl bg-red-900 border border-gray-400 px-4 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800 disabled:bg-neutral-500"
                             >
-                                Sign up
+                                {loading ? 'Loading...' : 'Sign up'}
                             </button>
                             <button
                                 type="button"
