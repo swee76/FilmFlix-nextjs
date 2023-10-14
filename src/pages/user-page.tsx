@@ -67,6 +67,22 @@ const UserPage = () => {
         const usersArray = [...userData]
         const filteredUsers = usersArray.filter((user) => user.email !== email)
 
+        const subscriberRef = databaseRef(FirebaseDatabase, `subscribedPlans/${uniqueUserId}`)
+        set(subscriberRef, null)
+            .then(() => {
+                toast.success('Subscriber removed successfully', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                })
+            }).catch((error) => {
+            toast.error(error.message, {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: true,
+            })
+        })
+
         setUserData(filteredUsers)
 
     }
