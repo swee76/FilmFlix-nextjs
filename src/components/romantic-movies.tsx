@@ -60,6 +60,8 @@ const RomanticMovies = () => {
                         </div>
                     </div>
                 ))}
+                {romanticMovies.length === 0 &&
+                    <p className="text-gray-500 text-lg text-center">No Romantic Movies Available</p>}
             </div>
         </div>
     );

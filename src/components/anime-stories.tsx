@@ -61,6 +61,8 @@ const AnimeStories = () => {
                         </div>
                     </div>
                 ))}
+                {animeStories.length === 0 &&
+                    <p className="text-gray-500 text-lg text-center">No Anime Stories Available</p>}
             </div>
         </div>
     );

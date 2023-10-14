@@ -62,6 +62,8 @@ const SciFiMovies = () => {
                         </div>
                     </div>
                 ))}
+                {sciFiMovies.length === 0 &&
+                    <p className="text-gray-500 text-lg text-center">No Sci-Fi Movies Available</p>}
             </div>
         </div>
     );
